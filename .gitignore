@@ -1,0 +1,15 @@
+# Node / companion extension
+node_modules/
+dist/
+out/
+*.vsix
+
+# .NET / dock extension (built on Windows over \\wsl.localhost — keep artifacts out)
+bin/
+obj/
+*.user
+
+# Editor / OS
+.vs/
+.DS_Store
+Thumbs.db

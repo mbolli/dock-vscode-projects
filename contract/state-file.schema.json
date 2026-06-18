@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mbolli/dock-vscode-projects/contract/state-file.schema.json",
+  "title": "VS Code Projects Dock — window state file",
+  "description": "One file per open VS Code window, named {windowId}.json, written to the shared state directory and rewritten on a heartbeat. Liveness is determined by file mtime; lastSeen is belt-and-suspenders.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "windowId",
+    "folderUri",
+    "remoteKind",
+    "displayName",
+    "lastSeen"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "description": "Contract version. Bump on any breaking change to this shape.",
+      "type": "integer",
+      "const": 1
+    },
+    "windowId": {
+      "description": "Stable, unique-per-window identifier. Used as the filename key. Source confirmed in Phase 0 (Group 1).",
+      "type": "string",
+      "minLength": 1
+    },
+    "folderUri": {
+      "description": "The opened workspace folder URI. Carries the remote authority for remote windows (e.g. vscode-remote://wsl+Ubuntu/home/michael/project). The dock's match key.",
+      "type": "string",
+      "format": "uri",
+      "minLength": 1
+    },
+    "remoteKind": {
+      "description": "Derived from the folderUri scheme/authority.",
+      "type": "string",
+      "enum": ["local", "wsl", "container", "ssh"]
+    },
+    "displayName": {
+      "description": "Leaf of the folder path. Used only for the button label.",
+      "type": "string",
+      "minLength": 1
+    },
+    "lastSeen": {
+      "description": "ISO 8601 UTC timestamp of the last heartbeat write. The dock may rely on file mtime instead; this keeps the payload self-describing and transport-independent.",
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# Canonical checkout lives on WSL ext4; the C# dock is built on Windows over
+# \\wsl.localhost. Force LF everywhere so the cross-OS build never rewrites line
+# endings and dirties the tree.
+* text=auto eol=lf
+
+# Binary artifacts — never normalize.
+*.vsix binary
+*.png binary
+*.ico binary
