@@ -7,6 +7,7 @@
 Your open and favourite VS Code projects as a side-by-side strip in the
 PowerToys Command Palette Dock.
 
+[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/zweiundeins.vscode-projects-dock-companion?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=zweiundeins.vscode-projects-dock-companion)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%2011%20%2B%20WSL-0078D4)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC?logo=visualstudiocode&logoColor=white)
@@ -21,13 +22,15 @@ PowerToys Command Palette Dock.
 ## Install
 
 > Requires Windows 11 with **PowerToys** (Command Palette ≥ 0.100) and **Developer
-> Mode** on, **VS Code** ≥ 1.85 (local and/or WSL remote), and — for building the dock
-> — the **.NET 10 SDK** plus Visual Studio's WinUI / Windows App SDK build tooling.
+> Mode** on, plus **VS Code** ≥ 1.85 (local and/or WSL remote). Building the dock
+> yourself also needs the **.NET 10 SDK** and Visual Studio's WinUI / Windows App SDK
+> tooling.
 
-1. **Companion** — install `companion/vscode-projects-dock-companion-*.vsix`
-   (Extensions → *Install from VSIX…*). Because it's a `ui` extension, installing from
-   a WSL window routes it to the local host automatically.
-2. **Dock** — build and register per [`dock/README.md`](dock/README.md), then run
+1. **Companion:** install **[VS Code Projects Dock (Companion)](https://marketplace.visualstudio.com/items?itemName=zweiundeins.vscode-projects-dock-companion)**
+   from the Marketplace. Search "VS Code Projects Dock" in the Extensions view, or run
+   `code --install-extension zweiundeins.vscode-projects-dock-companion`. It's a `ui`
+   extension, so installing from a WSL window routes it to the local host automatically.
+2. **Dock:** build and register per [`dock/README.md`](dock/README.md), then run
    `Reload` in Command Palette.
 
 ## What it does
