@@ -1,19 +1,45 @@
 {
   "name": "vscode-projects-dock-companion",
-  "displayName": "VS Code Projects Dock — Companion",
+  "displayName": "VS Code Projects Dock (Companion)",
   "description": "Silent reporter: publishes this window's identity and liveness to the shared state directory the PowerToys dock reads. Reports what is, never what to do.",
   "version": "0.1.0",
   "publisher": "michael-bolli",
   "author": "Michael Bolli <michael@bolli.us>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbolli/dock-vscode-projects.git",
+    "directory": "companion"
+  },
+  "homepage": "https://github.com/mbolli/dock-vscode-projects#readme",
+  "bugs": {
+    "url": "https://github.com/mbolli/dock-vscode-projects/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "powertoys",
+    "command palette",
+    "dock",
+    "wsl",
+    "workspace"
+  ],
+  "galleryBanner": {
+    "color": "#1A1A1F",
+    "theme": "dark"
+  },
   "icon": "images/icon.png",
   "// extensionKind": "Phase 0 confirmed a ui-host extension sees the wsl+ authority and writes natively to %LOCALAPPDATA%.",
-  "extensionKind": ["ui"],
-  "activationEvents": ["onStartupFinished"],
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -44,11 +70,14 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "vsce package --allow-missing-repository"
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.2",
     "typescript": "^5.4.0"
   }
 }
