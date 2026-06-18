@@ -48,12 +48,19 @@ $src = '.\VsCodeProjectsDockExtension\bin\x64\Debug\net10.0-windows10.0.26100.0\
 $dst = 'C:\dev-deploy\VsCodeProjectsDock'
 robocopy $src $dst /MIR   # exit codes 1-3 are success
 
-# 3. Stop any running instance (CmdPal holds the COM-server EXE), then register
+# 3. Stop the running instance (CmdPal holds the COM-server EXE), drop the old
+#    registration, then register the fresh layout.
 Get-Process VsCodeProjectsDockExtension -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-AppxPackage VsCodeProjectsDockExtension | Remove-AppxPackage -ErrorAction SilentlyContinue
 Add-AppxPackage -Register (Join-Path $dst 'AppxManifest.xml')
 ```
 
 Then `Reload` in Command Palette (or restart it) to pick up band changes.
+
+> Why remove-then-register: re-registering the *same* version in place fails with
+> `0x80073CFB` ("already installed, reinstall blocked") once the package exists. The
+> `Remove-AppxPackage` makes every deploy idempotent without bumping the version each
+> build. (And stop the EXE first, or you'll hit `0x80073D02` — files in use.)
 
 > Note: the loose-layout `AppxManifest.xml` is only generated when a packaging build
 > runs; the first time, build with
