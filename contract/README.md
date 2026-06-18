@@ -41,10 +41,10 @@ prose.
 - `remoteKind` — from `vscode.env.remoteName` (populated on the UI host): `undefined`
   → `local`, `"wsl"` → `wsl`, `"ssh-remote"` → `ssh`, `"dev-container"` /
   `"attached-container"` → `container`.
-- `displayName` — leaf of `uri.path` (NOT `fsPath`, which is Windows-mangled for
-  remote).
-- `windowId` — `vscode.env.sessionId` (candidate; per-window uniqueness pending the
-  two-window check before commit).
+- `displayName` — `workspaceFolder.name` (the folder basename; NOT `fsPath`, which
+  Windows-mangles remote POSIX paths).
+- `windowId` — `vscode.env.sessionId`. Verified unique across two concurrent windows
+  (the per-window-vs-per-host risk is settled — distinct windows get distinct ids).
 
 ## Shared directory
 

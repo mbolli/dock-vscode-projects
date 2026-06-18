@@ -12,7 +12,10 @@ Two artifacts with a strict one-way contract between them:
    Built in WSL (TypeScript / Node).
 2. **`dock/`** — a PowerToys Command Palette extension (C#) that reads the reported
    state, renders the band, owns favourites, and performs focus/launch actions.
-   Built on Windows over `\\wsl.localhost\Ubuntu\var\www\dock-vscode-projects`.
+   Built on Windows over `\\wsl.localhost\Ubuntu-24.04\var\www\dock-vscode-projects`
+   with the standalone `dotnet` CLI. The project stays in the WSL monorepo; only the
+   MSIX *install location* must be local NTFS (WSL's 9P filesystem can't host a
+   registered package). See `dock/README.md` for the build/deploy loop.
 
 Data flows one direction only: windows publish state, the dock consumes it. The
 companion reports what *is*, never what to do; all behaviour lives in the dock.

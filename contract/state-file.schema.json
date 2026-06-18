@@ -20,7 +20,7 @@
       "const": 1
     },
     "windowId": {
-      "description": "Stable, unique-per-window identifier. Used as the filename key. Source: vscode.env.sessionId (per-window uniqueness pending two-window verification).",
+      "description": "Stable, unique-per-window identifier. Used as the filename key. Source: vscode.env.sessionId (verified unique across concurrent windows).",
       "type": "string",
       "minLength": 1
     },
