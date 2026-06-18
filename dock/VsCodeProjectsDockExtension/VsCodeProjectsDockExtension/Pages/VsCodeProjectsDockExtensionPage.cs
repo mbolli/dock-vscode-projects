@@ -79,7 +79,8 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
             {
                 Title = f.Label,
                 Subtitle = open ? "favourite · open" : "favourite",
-                Icon = new IconInfo(char.ConvertFromUtf32(0xE735)), // star (favourite)
+                // Filled star when the project is open, outline when it's closed.
+                Icon = new IconInfo(char.ConvertFromUtf32(open ? 0xE735 : 0xE734)),
                 MoreCommands =
                 [
                     new CommandContextItem(
