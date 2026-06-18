@@ -14,25 +14,22 @@ internal readonly record struct WindowState(
 
 internal static class WindowStore
 {
-    // The companion heartbeats every 2s; ~3 beats of slack tolerates a missed write
-    // or a brief stall before we call a window dead.
-    private static readonly TimeSpan ReapAfter = TimeSpan.FromSeconds(6);
-
-    // Companion default. Must match the companion's `sharedDirectory` setting — a
-    // dock-side override to mirror that setting is a later task; default assumed here.
-    internal static string SharedDir() => Path.Combine(
+    // The companion's default state directory, used when the setting is left empty.
+    internal static string DefaultSharedDir() => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "VsCodeProjectsDock", "windows");
 
-    internal static List<WindowState> ReadLive()
+    // dir + timeout come from settings (see SettingsManager). A file untouched longer
+    // than the timeout is a dead window: skipped and deleted.
+    internal static List<WindowState> ReadLive(string dir, int timeoutSeconds)
     {
-        var dir = SharedDir();
         var windows = new List<WindowState>();
-        if (!Directory.Exists(dir))
+        if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
         {
             return windows;
         }
 
+        var reapAfter = TimeSpan.FromSeconds(timeoutSeconds);
         var now = DateTime.UtcNow;
         foreach (var file in Directory.EnumerateFiles(dir, "*.json"))
         {
@@ -41,7 +38,7 @@ internal static class WindowStore
                 // Reap dead windows: skip stale files and delete them so a crashed
                 // window doesn't linger in the dir. A live-but-laggy window simply
                 // rewrites its file on the next heartbeat.
-                if (now - File.GetLastWriteTimeUtc(file) > ReapAfter)
+                if (now - File.GetLastWriteTimeUtc(file) > reapAfter)
                 {
                     TryDelete(file);
                     continue;

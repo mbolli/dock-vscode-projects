@@ -12,9 +12,11 @@ public partial class VsCodeProjectsDockExtensionCommandsProvider : CommandProvid
     // Reverse-DNS provider id — required for the dock to address this extension.
     private const string ProviderId = "ch.mbolli.vscodeprojectsdock";
 
+    private readonly SettingsManager _settingsManager = new();
+
     // One live page drives both surfaces: the top-level palette entry and the dock
     // band. Its timer raises ItemsChanged, so both refresh as windows come and go.
-    private readonly VsCodeProjectsDockExtensionPage _windowsPage = new();
+    private readonly VsCodeProjectsDockExtensionPage _windowsPage;
     private readonly ICommandItem[] _commands;
     private readonly ICommandItem[] _dockBands;
 
@@ -23,6 +25,8 @@ public partial class VsCodeProjectsDockExtensionCommandsProvider : CommandProvid
         Id = ProviderId;
         DisplayName = "VS Code Projects Dock";
         Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
+        Settings = _settingsManager.Settings; // surfaces the settings page in CmdPal
+        _windowsPage = new VsCodeProjectsDockExtensionPage(_settingsManager);
         _commands = [new CommandItem(_windowsPage) { Title = DisplayName }];
         _dockBands = [new CommandItem(_windowsPage) { Title = "VS Code Projects" }];
     }

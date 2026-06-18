@@ -20,9 +20,12 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
     private const int PollMs = 2000;
 
     private readonly System.Timers.Timer _poll;
+    private readonly SettingsManager _settings;
 
-    public VsCodeProjectsDockExtensionPage()
+    public VsCodeProjectsDockExtensionPage(SettingsManager settings)
     {
+        _settings = settings;
+
         // Stable id so CmdPal keys the dock-band pin to it and dedups across re-installs
         // instead of generating a fresh id each time (which accumulated duplicate pins).
         Id = IdPrefix + ".windows";
@@ -39,10 +42,12 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
     // project is open), then live-only windows on the right. Dedup is keyed on folderUri.
     public override IListItem[] GetItems()
     {
-        var live = WindowStore.ReadLive();
+        var live = WindowStore.ReadLive(_settings.SharedDirectory, _settings.WindowTimeoutSeconds);
         var favourites = FavouritesStore.Read();
         var favouriteKeys = new HashSet<string>(favourites.Select(f => f.MatchKey));
 
+        var executable = _settings.VsCodeExecutable;
+        var processName = _settings.VsCodeProcessName;
         var items = new List<IListItem>();
 
         foreach (var f in favourites)
@@ -52,8 +57,9 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
             var match = live.FirstOrDefault(w => w.FolderUri == f.MatchKey);
             var open = match.FolderUri is not null;
             var command = open
-                ? new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, match.DisplayName, match.RemoteKind)
-                : new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget);
+                ? new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, executable,
+                    new FocusHint(match.DisplayName, match.RemoteKind, processName))
+                : new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, executable);
             items.Add(new ListItem(command)
             {
                 Title = f.Label,
@@ -69,7 +75,8 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         foreach (var w in live.Where(w => !favouriteKeys.Contains(w.FolderUri)))
         {
-            items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri, w.DisplayName, w.RemoteKind))
+            items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri, executable,
+                new FocusHint(w.DisplayName, w.RemoteKind, processName)))
             {
                 Title = w.DisplayName,
                 Subtitle = w.RemoteKind,

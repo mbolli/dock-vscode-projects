@@ -16,7 +16,7 @@ internal static class WindowFocus
     private const string VsCodeTitleMarker = "Visual Studio Code";
     private const int SW_RESTORE = 9;
 
-    internal static bool TryFocus(string displayName, string remoteKind)
+    internal static bool TryFocus(string displayName, string remoteKind, string processName)
     {
         if (string.IsNullOrEmpty(displayName))
         {
@@ -35,7 +35,7 @@ internal static class WindowFocus
             {
                 return true;
             }
-            if (IsCodeWindow(hwnd) && TitleMatches(title, displayName, remoteKind))
+            if (IsProcess(hwnd, processName) && TitleMatches(title, displayName, remoteKind))
             {
                 matches.Add(hwnd);
             }
@@ -59,13 +59,13 @@ internal static class WindowFocus
         return remoteKind == "wsl" ? wslTitle : !wslTitle;
     }
 
-    private static bool IsCodeWindow(IntPtr hwnd)
+    private static bool IsProcess(IntPtr hwnd, string processName)
     {
         _ = GetWindowThreadProcessId(hwnd, out var pid);
         try
         {
             using var p = Process.GetProcessById((int)pid);
-            return string.Equals(p.ProcessName, "Code", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(p.ProcessName, processName, StringComparison.OrdinalIgnoreCase);
         }
         catch (ArgumentException)
         {
