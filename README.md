@@ -120,8 +120,12 @@ cd companion && npm install && npm run compile   # F5 to debug, npm run package 
 
 ## Releases
 
-Tag-prefixed so the two channels don't collide: `companion-vX.Y.Z` (VS Code
-Marketplace) and `dock-vX.Y.Z` (PowerToys / winget).
+Two channels: the **companion** ships to the **VS Code Marketplace** (tagged
+`companion-vX.Y.Z`), and the **dock** ships to the **Microsoft Store** as a signed MSIX —
+the Store signs it, so no certificate to manage. (A CmdPal extension must be a signed,
+identity-bearing package to be discoverable; an unpackaged EXE isn't.) Build the
+submission bundle with `dock/.../build-store.ps1` — see
+[`dock/README.md`](dock/README.md#release--microsoft-store).
 
 ## License
 

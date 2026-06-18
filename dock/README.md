@@ -102,3 +102,38 @@ as **ghost entries** (an old duplicate that won't have your latest settings/icon
 CmdPal stopped, remove the stale `<Name>_<oldhash>!App!ID` entries from both files
 (back them up first), then relaunch. Likewise, duplicate **dock bands** are pinned in
 `settings.json` under `CenterBands` — dedupe to one entry keyed on the band's CommandId.
+
+## Release — Microsoft Store
+
+Distribution is the **Microsoft Store**, which signs the MSIX for you (no certificate to
+manage). This is required, not just convenient: CmdPal discovers extensions through the
+**package catalog** (the `com.microsoft.commandpalette` AppExtension), so an extension
+must be a **signed, identity-bearing package**. An unpackaged EXE with only a
+`CLSID`/`LocalServer32` registration is *not* discoverable — verified empirically — so
+the winget "unpackaged" route doesn't apply here.
+
+1. Enroll in the [Microsoft Store developer program](https://developer.microsoft.com/microsoft-store/register)
+   (free as of 2026; a GmbH goes through company verification). Then **Apps and Games →
+   New product → MSIX app**, reserve the name, and copy the three **Product Identity**
+   values.
+2. Set the identity from Partner Center:
+   - `Package.appxmanifest` → `Identity Name`, `Identity Publisher`, `PublisherDisplayName`
+   - `.csproj` → `AppxPackageIdentityName`, `AppxPackagePublisher`, `AppxPackageVersion`
+
+   (Changing the identity changes the package-family hash, so the local dev build
+   re-registers under the new identity and pins reset — expected.)
+3. Build the **unsigned** bundle (the Store signs at submission):
+
+   ```powershell
+   .\build-store.ps1 -Version 0.1.0.0
+   # -> AppPackages\VsCodeProjectsDockExtension_<version>.msixbundle (x64 + ARM64)
+   ```
+
+4. In Partner Center, **start a submission**, upload the `.msixbundle`, fill the listing,
+   and add certification notes (the extension requires PowerToys with Command Palette).
+   Certification takes ~1–3 business days; the Store auto-updates installed users on each
+   new submission.
+
+> Note: Store-published extensions load in CmdPal once installed, but don't appear in
+> CmdPal's *browse/Search WinGet* experience. For that, additionally list on winget
+> (e.g. a manifest referencing the Store package) — separate from this MSIX submission.
