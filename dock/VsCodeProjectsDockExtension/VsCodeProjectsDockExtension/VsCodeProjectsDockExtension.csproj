@@ -21,8 +21,8 @@
     <Product>VS Code Projects Dock</Product>
     <Description>Open and favourite VS Code projects as a side-by-side strip in the PowerToys Command Palette dock.</Description>
     <Authors>Michael Bolli</Authors>
-    <Company>zwei und eins GmbH</Company>
-    <Copyright>Copyright &#169; 2026 zwei und eins GmbH</Copyright>
+    <Company>zwei und eins gmbh</Company>
+    <Copyright>Copyright &#169; 2026 zwei und eins gmbh</Copyright>
     <RepositoryUrl>https://github.com/mbolli/dock-vscode-projects</RepositoryUrl>
     <PackageProjectUrl>https://github.com/mbolli/dock-vscode-projects</PackageProjectUrl>
   </PropertyGroup>
