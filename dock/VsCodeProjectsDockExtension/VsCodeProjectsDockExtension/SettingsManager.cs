@@ -1,30 +1,34 @@
-// User-configurable settings, surfaced as the extension's settings page and persisted
-// by the CmdPal host. Values are read fresh each poll, so changes apply within a tick.
+// User-configurable settings, surfaced as the extension's settings page. Backed by
+// JsonSettingsManager so the host persists/reloads them to FilePath; without that the
+// values never round-trip and reads fall back to defaults.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace VsCodeProjectsDockExtension;
 
-internal sealed class SettingsManager
+internal sealed class SettingsManager : JsonSettingsManager
 {
     private const int DefaultTimeoutSeconds = 6;
     private const int MinTimeoutSeconds = 3;
 
-    private readonly Settings _settings = new();
-
     public SettingsManager()
     {
-        _settings.Add(new TextSetting(
+        FilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "VsCodeProjectsDock", "dock-settings.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
+
+        Settings.Add(new TextSetting(
             "sharedDirectory",
             "Shared state directory",
-            "Folder the companion writes window state to. Leave empty for the default "
-                + "(%LOCALAPPDATA%\\VsCodeProjectsDock\\windows). Must match the companion's setting.",
-            string.Empty));
+            "Folder the companion writes window state to. Must match the companion's "
+                + "setting; clear it to reset to the default shown. Env vars like "
+                + "%LOCALAPPDATA% are expanded.",
+            WindowStore.DefaultSharedDir()));
 
-        _settings.Add(new TextSetting(
+        Settings.Add(new TextSetting(
             "windowTimeoutSeconds",
             "Window timeout (seconds)",
             "How long without a heartbeat before a window is treated as closed and removed "
@@ -43,25 +47,31 @@ internal sealed class SettingsManager
         {
             Value = "stable",
         };
-        _settings.Add(edition);
+        Settings.Add(edition);
 
-        _settings.Add(new TextSetting(
+        Settings.Add(new TextSetting(
             "vsCodePath",
             "VS Code executable path (override)",
             "Full path to the VS Code executable. Leave empty to auto-detect from the edition "
                 + "above; set this for portable or non-standard installs.",
             string.Empty));
-    }
 
-    public Settings Settings => _settings;
+        // Load persisted values, then persist on every change.
+        LoadSettings();
+        Settings.SettingsChanged += (_, _) => SaveSettings();
+    }
 
     // The intended state directory (configured if set, else default) — for display.
     public string SharedDirectory
     {
         get
         {
-            var value = _settings.GetSetting<string>("sharedDirectory")?.Trim();
-            return string.IsNullOrEmpty(value) ? WindowStore.DefaultSharedDir() : value;
+            var value = Settings.GetSetting<string>("sharedDirectory")?.Trim();
+            // Expand %LOCALAPPDATA% etc. — users paste env-var paths (the default hint
+            // even shows one), and Directory.Exists won't match an unexpanded token.
+            return string.IsNullOrEmpty(value)
+                ? WindowStore.DefaultSharedDir()
+                : Environment.ExpandEnvironmentVariables(value);
         }
     }
 
@@ -75,7 +85,7 @@ internal sealed class SettingsManager
     }
 
     public int WindowTimeoutSeconds =>
-        int.TryParse(_settings.GetSetting<string>("windowTimeoutSeconds"), out var v)
+        int.TryParse(Settings.GetSetting<string>("windowTimeoutSeconds"), out var v)
             ? Math.Max(MinTimeoutSeconds, v)
             : DefaultTimeoutSeconds;
 
@@ -84,8 +94,10 @@ internal sealed class SettingsManager
     {
         get
         {
-            var overridePath = _settings.GetSetting<string>("vsCodePath")?.Trim();
-            return string.IsNullOrEmpty(overridePath) ? ResolveByEdition(IsInsiders) : overridePath;
+            var overridePath = Settings.GetSetting<string>("vsCodePath")?.Trim();
+            return string.IsNullOrEmpty(overridePath)
+                ? ResolveByEdition(IsInsiders)
+                : Environment.ExpandEnvironmentVariables(overridePath);
         }
     }
 
@@ -94,7 +106,7 @@ internal sealed class SettingsManager
     public string VsCodeProcessName => Path.GetFileNameWithoutExtension(VsCodeExecutable);
 
     private bool IsInsiders => string.Equals(
-        _settings.GetSetting<string>("vsCodeEdition"), "insiders", StringComparison.OrdinalIgnoreCase);
+        Settings.GetSetting<string>("vsCodeEdition"), "insiders", StringComparison.OrdinalIgnoreCase);
 
     private static string ResolveByEdition(bool insiders)
     {

@@ -53,6 +53,18 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
         var processName = _settings.VsCodeProcessName;
         var items = new List<IListItem>();
 
+        // Surface a missing shared folder up front — even when favourites are pinned —
+        // since live-window detection is broken until it's fixed.
+        if (sharedDir is null)
+        {
+            items.Add(new ListItem(new NoOpCommand() { Id = IdPrefix + ".missing" })
+            {
+                Title = "VS Code companion not found",
+                Subtitle = "No shared folder at " + _settings.SharedDirectory,
+                Icon = new IconInfo(char.ConvertFromUtf32(0xE7BA)), // Warning
+            });
+        }
+
         foreach (var f in favourites)
         {
             // If the favourite's project is open, carry the live window's name/kind so
@@ -95,21 +107,13 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         if (items.Count == 0)
         {
-            // Keep one item so the band still pins. Distinguish "the companion's folder
-            // isn't there" (likely not installed / misconfigured) from "folder is there
-            // but nothing is open" — the former is a warning, not an empty state.
-            items.Add(sharedDir is null
-                ? new ListItem(new NoOpCommand() { Id = IdPrefix + ".missing" })
-                {
-                    Title = "VS Code companion not found",
-                    Subtitle = "No shared folder at " + _settings.SharedDirectory,
-                    Icon = new IconInfo(char.ConvertFromUtf32(0xE7BA)), // Warning
-                }
-                : new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
-                {
-                    Title = "No VS Code windows",
-                    Icon = new IconInfo(char.ConvertFromUtf32(0xE946)),
-                });
+            // Folder exists but nothing is open or favourited. (A missing folder already
+            // added a warning above, so we're not here in that case.)
+            items.Add(new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
+            {
+                Title = "No VS Code windows",
+                Icon = new IconInfo(char.ConvertFromUtf32(0xE946)),
+            });
         }
 
         return items.ToArray();
