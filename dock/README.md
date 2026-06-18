@@ -66,3 +66,39 @@ Then `Reload` in Command Palette (or restart it) to pick up band changes.
 > runs; the first time, build with
 > `-p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageSigningEnabled=false -p:GenerateAppxPackageOnBuild=true`
 > to emit it. Subsequent plain `dotnet build`s refresh the payload DLLs in that layout.
+
+## Registering / re-registering
+
+**Prereq:** Developer Mode ON (see above).
+
+**Re-register only** (layout in `C:\dev-deploy` already current — e.g. CmdPal dropped it,
+or you just want a clean re-register without rebuilding):
+
+```powershell
+$dst = 'C:\dev-deploy\VsCodeProjectsDock'
+Get-Process VsCodeProjectsDockExtension -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-AppxPackage VsCodeProjectsDockExtension | Remove-AppxPackage -ErrorAction SilentlyContinue
+Add-AppxPackage -Register (Join-Path $dst 'AppxManifest.xml')
+Get-AppxPackage VsCodeProjectsDockExtension | Select-Object Version, InstallLocation
+```
+
+**Unregister** (remove entirely):
+
+```powershell
+Get-AppxPackage VsCodeProjectsDockExtension | Remove-AppxPackage
+```
+
+### Getting CmdPal to show the update
+
+`Reload` in Command Palette refreshes the command list but **not** cached provider
+metadata — icon, the settings page, capabilities. After changing any of those, **fully
+quit and relaunch Command Palette** (stop `Microsoft.CmdPal.UI`), don't just Reload.
+
+CmdPal caches discovered providers under
+`%LOCALAPPDATA%\Packages\Microsoft.CommandPalette_8wekyb3d8bbwe\LocalState\` in
+`commandProviderCache.json` and `settings.json`. Changing the package **Publisher**
+changes its family hash (`<Name>_<hash>!App!ID`), so prior-identity builds linger there
+as **ghost entries** (an old duplicate that won't have your latest settings/icon). With
+CmdPal stopped, remove the stale `<Name>_<oldhash>!App!ID` entries from both files
+(back them up first), then relaunch. Likewise, duplicate **dock bands** are pinned in
+`settings.json` under `CenterBands` — dedupe to one entry keyed on the band's CommandId.
