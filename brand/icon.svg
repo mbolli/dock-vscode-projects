@@ -4,20 +4,28 @@
       <stop offset="0" stop-color="#2B2B33"/>
       <stop offset="1" stop-color="#1A1A1F"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#29A3FF"/>
-      <stop offset="1" stop-color="#0078D4"/>
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F9CF0"/>
+      <stop offset="1" stop-color="#0066B8"/>
     </linearGradient>
   </defs>
 
-  <!-- rounded dark backplate -->
-  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- rounded tile -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
 
-  <!-- the dock band: a strip of project buttons (two favourites + one open) -->
-  <rect x="72"  y="143" width="96" height="196" rx="28" fill="#54545F"/>
-  <rect x="208" y="143" width="96" height="196" rx="28" fill="url(#accent)"/>
-  <rect x="344" y="143" width="96" height="196" rx="28" fill="#54545F"/>
+  <!-- the dock band, pinned like the real top-of-screen bar -->
+  <rect x="56" y="150" width="400" height="150" rx="24" fill="url(#band)"/>
 
-  <!-- liveness indicator under the open (active) project -->
-  <circle cx="256" cy="357" r="14" fill="url(#accent)"/>
+  <!-- favourite star: the app's signature glyph, in white -->
+  <path transform="translate(132,225)"
+        d="M0,-46 10.6,-14.6 43.7,-14.2 17.1,5.6 27,37.2 0,18 -27,37.2 -17.1,5.6 -43.7,-14.2 -10.6,-14.6Z"
+        fill="#fff"/>
+
+  <!-- two project entries: name row + dimmer type tag -->
+  <g fill="#fff">
+    <rect x="216" y="200" width="120" height="16" rx="8"/>
+    <rect x="216" y="232" width="64"  height="12" rx="6" opacity="0.55"/>
+    <rect x="360" y="200" width="80"  height="16" rx="8"/>
+    <rect x="360" y="232" width="48"  height="12" rx="6" opacity="0.55"/>
+  </g>
 </svg>
