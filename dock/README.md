@@ -4,9 +4,9 @@ C# / WinUI 3 / Windows App SDK **packaged (MSIX)** app. Windows-only (no dotnet 
 WSL; CmdPal is Windows-only). Reads the shared state directory, renders the band, owns
 pinned projects, and performs focus/launch actions per `../contract/`.
 
-## Scaffolding (corrected: there is NO `dotnet new` template)
+## Scaffolding
 
-Per Microsoft docs, generate the project from Command Palette itself:
+There's no `dotnet new` template — generate the project from Command Palette:
 
 1. Open Command Palette → run **"Create a new extension"**.
 2. Fill the form: ExtensionName (valid C# class name, e.g. `VsCodeProjectsDock`), a
@@ -17,14 +17,14 @@ the `Microsoft.CommandPalette.Extensions` SDK version — currently `0.9.2603030
 an MSIX `Package.appxmanifest`, `Program.cs`, and `<Name>CommandsProvider.cs` (this is
 where the band logic goes).
 
-## Build & deploy — the dev loop (RESOLVED)
+## Build & deploy (dev loop)
 
-The original "build over `\\wsl.localhost`" assumption was only half right, so don't
-follow the VS-Deploy path. What was settled empirically (2026-06-18):
+Build over the `\\wsl.localhost` UNC path, but register from a local NTFS copy — don't
+use VS's Deploy. Key points:
 
-- **Build over the UNC path works** — but use the standalone `dotnet` CLI, **not** VS's
-  bundled MSBuild (VS 2022 lacks the .NET 10 SDK; you'll hit `MSB4236 / Microsoft.NET.Sdk
-  not found`). `dotnet` (10.0.301) restores and builds fine from `\\wsl.localhost\...`.
+- **Build with the standalone `dotnet` CLI**, not VS's bundled MSBuild (VS 2022 lacks the
+  .NET 10 SDK; you'll hit `MSB4236 / Microsoft.NET.Sdk not found`). `dotnet` restores and
+  builds fine from `\\wsl.localhost\...`.
 - **You cannot register the MSIX layout in place from `\\wsl.localhost`.** WSL is a **9P**
   filesystem; `Add-AppxPackage -Register` over it fails with `0x80073CFD`
   ("cannot deploy in path of filesystem type 9P"). UNC *reads* are fine — only the
@@ -33,9 +33,9 @@ follow the VS-Deploy path. What was settled empirically (2026-06-18):
   deploy target moves.
 - **Developer Mode must be ON** (`HKLM\...\AppModelUnlock\AllowDevelopmentWithoutDevLicense=1`,
   Settings → System → For developers), or register fails `0x80073CFF` (no dev license).
-- The dock-band API (`GetDockBands` returning `ICommandItem[]?`, `WrappedDockItem`) is
-  **confirmed** present in the pinned SDK 0.9.x and supported by the installed CmdPal
-  runtime (PowerToys 0.100.0 / `Microsoft.CommandPalette` 0.11.x).
+- The dock-band API (`GetDockBands` returning `ICommandItem[]?`, `WrappedDockItem`) is in
+  the pinned SDK 0.9.x and supported by the CmdPal runtime (PowerToys 0.100+ /
+  `Microsoft.CommandPalette` 0.11.x).
 
 Run from Windows (PowerShell), from this project dir over the UNC path:
 
@@ -109,8 +109,8 @@ Distribution is the **Microsoft Store**, which signs the MSIX for you (no certif
 manage). This is required, not just convenient: CmdPal discovers extensions through the
 **package catalog** (the `com.microsoft.commandpalette` AppExtension), so an extension
 must be a **signed, identity-bearing package**. An unpackaged EXE with only a
-`CLSID`/`LocalServer32` registration is *not* discoverable — verified empirically — so
-the winget "unpackaged" route doesn't apply here.
+`CLSID`/`LocalServer32` registration is *not* discoverable, so the winget "unpackaged"
+route doesn't apply here.
 
 1. Enroll in the [Microsoft Store developer program](https://developer.microsoft.com/microsoft-store/register)
    (free as of 2026; a GmbH goes through company verification). Then **Apps and Games →

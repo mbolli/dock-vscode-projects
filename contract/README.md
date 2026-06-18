@@ -38,10 +38,10 @@ prose.
   this exact string; do NOT mix in `uri.authority` (which preserves case as
   `Ubuntu-24.04`) or `uri.fsPath` (Windows-mangles remote POSIX paths to `\var\www`).
 
-## Field derivation (companion side, confirmed by Phase 0 probe)
+## Field derivation (companion side)
 
-- `folderUri` — `vscode.workspace.workspaceFolders[0].uri.toString()`. Verified to
-  carry the `wsl+...` authority even when the extension runs on the UI/Windows host.
+- `folderUri` — `vscode.workspace.workspaceFolders[0].uri.toString()`. Carries the
+  `wsl+...` authority even when the extension runs on the UI/Windows host.
 - `remoteKind` — from `vscode.env.remoteName` (populated on the UI host): `undefined`
   → `local`, `"wsl"` → `wsl`, `"ssh-remote"` → `ssh`, `"dev-container"` /
   `"attached-container"` → `container`.
@@ -49,8 +49,8 @@ prose.
   Windows-mangles remote POSIX paths).
 - `pid` — `process.pid`: the extension-host process id on the host the companion runs
   on (Windows, for ui placement). For the dock's focus / window correlation.
-- `windowId` — `vscode.env.sessionId`. Verified unique across two concurrent windows
-  (the per-window-vs-per-host risk is settled — distinct windows get distinct ids).
+- `windowId` — `vscode.env.sessionId`. Unique per window (distinct concurrent windows
+  get distinct ids).
 
 ## Shared directory
 
