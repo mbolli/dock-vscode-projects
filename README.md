@@ -18,6 +18,18 @@ PowerToys Command Palette Dock.
 
 ---
 
+## Install
+
+> Requires Windows 11 with **PowerToys** (Command Palette ≥ 0.100) and **Developer
+> Mode** on, **VS Code** ≥ 1.85 (local and/or WSL remote), and — for building the dock
+> — the **.NET 10 SDK** plus Visual Studio's WinUI / Windows App SDK build tooling.
+
+1. **Companion** — install `companion/vscode-projects-dock-companion-*.vsix`
+   (Extensions → *Install from VSIX…*). Because it's a `ui` extension, installing from
+   a WSL window routes it to the local host automatically.
+2. **Dock** — build and register per [`dock/README.md`](dock/README.md), then run
+   `Reload` in Command Palette.
+
 ## What it does
 
 Pins a live strip of project buttons to the Command Palette Dock. Each button is one
@@ -71,21 +83,6 @@ The repo is canonical on WSL ext4. The companion builds in WSL; the dock builds 
 Windows over `\\wsl.localhost\...` with the standalone `dotnet` CLI (only the MSIX
 *install location* must be local NTFS, since WSL's 9P filesystem can't host a
 registered package). See [`dock/README.md`](dock/README.md).
-
-## Requirements
-
-- Windows 11 with **PowerToys** (Command Palette ≥ 0.100) and **Developer Mode** on
-- **VS Code** ≥ 1.85 (local and/or WSL remote)
-- For building the dock: the **.NET 10 SDK** and Visual Studio's WinUI / Windows App
-  SDK build tooling
-
-## Install
-
-1. **Companion** — install `companion/vscode-projects-dock-companion-*.vsix`
-   (Extensions → *Install from VSIX…*). Because it's a `ui` extension, installing from
-   a WSL window routes it to the local host automatically.
-2. **Dock** — build and register per [`dock/README.md`](dock/README.md), then run
-   `Reload` in Command Palette.
 
 ## Configuration
 
