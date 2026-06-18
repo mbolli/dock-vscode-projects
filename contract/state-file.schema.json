@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/mbolli/dock-vscode-projects/contract/state-file.schema.json",
   "title": "VS Code Projects Dock — window state file",
-  "description": "One file per open VS Code window, named {windowId}.json, written to the shared state directory and rewritten on a heartbeat. Liveness is determined by file mtime; lastSeen is belt-and-suspenders.",
+  "description": "One file per open VS Code window, named {windowId}.json, in the shared state directory. Its mtime is bumped on each heartbeat; the content is rewritten only when it changes. Liveness is determined by file mtime; lastSeen records the last content change.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -11,13 +11,14 @@
     "folderUri",
     "remoteKind",
     "displayName",
+    "pid",
     "lastSeen"
   ],
   "properties": {
     "schemaVersion": {
       "description": "Contract version. Bump on any breaking change to this shape.",
       "type": "integer",
-      "const": 1
+      "const": 2
     },
     "windowId": {
       "description": "Stable, unique-per-window identifier. Used as the filename key. Source: vscode.env.sessionId (verified unique across concurrent windows).",
@@ -40,8 +41,12 @@
       "type": "string",
       "minLength": 1
     },
+    "pid": {
+      "description": "Process id of the VS Code extension host that wrote this file, on the host where the companion runs (Windows, for ui placement). Provided for the dock's window focus/correlation.",
+      "type": "integer"
+    },
     "lastSeen": {
-      "description": "ISO 8601 UTC timestamp of the last heartbeat write. The dock may rely on file mtime instead; this keeps the payload self-describing and transport-independent.",
+      "description": "ISO 8601 UTC timestamp of the last CONTENT change (not every heartbeat — the heartbeat only bumps the file's mtime). Use file mtime for liveness; lastSeen keeps the payload self-describing.",
       "type": "string",
       "format": "date-time"
     }

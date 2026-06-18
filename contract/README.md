@@ -8,11 +8,12 @@ prose.
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "windowId": "f7bae137-7a2f-4dd3-88fc-a09365358854...",
   "folderUri": "vscode-remote://wsl%2Bubuntu-24.04/var/www/project",
   "remoteKind": "wsl",
   "displayName": "project",
+  "pid": 41280,
   "lastSeen": "2026-06-18T10:00:00Z"
 }
 ```
@@ -20,13 +21,16 @@ prose.
 ## Rules
 
 - **One file per window**, named `{windowId}.json`, in the shared state directory.
-- The companion **rewrites** the file on each heartbeat (proposed 2s).
+- On each heartbeat the companion **bumps the file's mtime** (a cheap touch); it
+  rewrites the content only when the reported identity changes (e.g. folder switch).
+  Default heartbeat 2s, configurable.
 - On clean deactivation the companion **deletes** the file. This is a latency
   optimization only — correctness comes from heartbeat liveness, because `SIGKILL`,
   force-quit, and power loss run no exit code.
 - The dock determines liveness from **file mtime**: older than the reap threshold
-  (proposed ~6s, tolerating one missed beat) == dead window. `lastSeen` is redundant
-  with mtime and exists so the payload is self-describing.
+  (proposed ~6s, tolerating one missed beat) == dead window. `lastSeen` records the
+  last *content* change (not each heartbeat), so **mtime — not lastSeen — is the
+  freshness signal.**
 - The dock's **match key** is `folderUri` (exact comparison). The companion reporting
   the exact remote URI is what makes dedup exact rather than a title-fragment guess.
   **Canonical form is `workspaceFolder.uri.toString()`** — percent-encoded, with the
@@ -43,6 +47,8 @@ prose.
   `"attached-container"` → `container`.
 - `displayName` — `workspaceFolder.name` (the folder basename; NOT `fsPath`, which
   Windows-mangles remote POSIX paths).
+- `pid` — `process.pid`: the extension-host process id on the host the companion runs
+  on (Windows, for ui placement). For the dock's focus / window correlation.
 - `windowId` — `vscode.env.sessionId`. Verified unique across two concurrent windows
   (the per-window-vs-per-host risk is settled — distinct windows get distinct ids).
 

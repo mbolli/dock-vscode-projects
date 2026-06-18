@@ -12,8 +12,13 @@ One file per window, `{windowId}.json`, per `../contract/`:
 - `folderUri` = `workspaceFolder.uri.toString()` (canonical match key).
 - `remoteKind` from `vscode.env.remoteName`.
 - `displayName` = `workspaceFolder.name`.
-- `lastSeen` rewritten every 2s (heartbeat). Atomic temp-then-rename, so the dock
-  never reads a torn file.
+- `pid` = `process.pid` (extension-host pid, for the dock's focus correlation).
+- `lastSeen` = ISO timestamp, set on content writes.
+
+The heartbeat is cheap: every interval it just **bumps the file's mtime** (`utimes`).
+It does a full atomic rewrite (temp-then-rename, so the dock never reads a torn file)
+only on the first publish and when the identity above changes (folder switch). mtime —
+not `lastSeen` — is the liveness signal.
 
 On clean deactivation the file is deleted (latency optimization). Crashes are handled
 by the dock's mtime staleness reap, not by this extension.
@@ -25,7 +30,7 @@ Shared dir: `%LOCALAPPDATA%\VsCodeProjectsDock\windows\`
 
 | Setting | Default | Scope | Meaning |
 | --- | --- | --- | --- |
-| `vscodeProjectsDock.heartbeatIntervalMs` | `2000` | application | How often the state file is rewritten (ms, min 500). Lower = snappier dock, more writes. |
+| `vscodeProjectsDock.heartbeatIntervalMs` | `2000` | application | How often the file's mtime is touched (ms, min 500). Lower = snappier dock, more touches. |
 | `vscodeProjectsDock.sharedDirectory` | `""` (→ `%LOCALAPPDATA%\VsCodeProjectsDock\windows`) | machine | Absolute path to the shared state dir. **The dock must read the same path.** |
 
 Both apply live — no reload. Changing the interval reschedules the heartbeat;

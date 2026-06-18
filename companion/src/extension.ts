@@ -3,7 +3,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 // Contract: see ../contract/state-file.schema.json (single source of truth).
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const CONFIG_SECTION = "vscodeProjectsDock";
 const DEFAULT_HEARTBEAT_MS = 2000;
 const MIN_HEARTBEAT_MS = 500;
@@ -16,12 +16,22 @@ interface WindowState {
   folderUri: string;
   remoteKind: RemoteKind;
   displayName: string;
+  pid: number;
   lastSeen: string;
 }
+
+// Identity = the fields whose change forces a full rewrite. While they are stable, a
+// heartbeat is just a cheap mtime touch.
+type Identity = Pick<
+  WindowState,
+  "windowId" | "folderUri" | "remoteKind" | "displayName" | "pid"
+>;
 
 let log: vscode.OutputChannel;
 let heartbeat: ReturnType<typeof setInterval> | undefined;
 let lastWritten: string | undefined; // path of the file we currently own, if any
+let lastSignature: string | undefined; // JSON of the last-written identity
+let dirEnsured = false; // mkdir already done for the current shared dir
 
 function config(): vscode.WorkspaceConfiguration {
   return vscode.workspace.getConfiguration(CONFIG_SECTION);
@@ -64,20 +74,19 @@ function remoteKind(): RemoteKind {
 }
 
 // null when no folder is open: the dock only tracks windows that have a project.
-function computeState(): WindowState | null {
+function computeIdentity(): Identity | null {
   const folder = vscode.workspace.workspaceFolders?.[0];
   if (!folder) {
     return null;
   }
   return {
-    schemaVersion: SCHEMA_VERSION,
     windowId: vscode.env.sessionId,
     // Canonical match key: percent-encoded, authority lowercased. NOT uri.authority
     // (case is unstable across windows) and NOT uri.fsPath (Windows-mangles remote).
     folderUri: folder.uri.toString(),
     remoteKind: remoteKind(),
     displayName: folder.name,
-    lastSeen: new Date().toISOString(),
+    pid: process.pid, // extension-host pid on the host the companion runs on (Windows)
   };
 }
 
@@ -89,24 +98,58 @@ async function removeOwnFile(): Promise<void> {
     // already gone (clean-exit delete is a latency optimization, not correctness)
   }
   lastWritten = undefined;
+  lastSignature = undefined;
 }
 
-// Rewrite-on-heartbeat. Atomic (temp + rename) so the dock never reads a torn file.
+// mkdir is done once per shared dir, not on every heartbeat.
+async function ensureDir(dir: string): Promise<void> {
+  if (dirEnsured) {
+    return;
+  }
+  await fs.promises.mkdir(dir, { recursive: true });
+  dirEnsured = true;
+}
+
+// Full atomic write (temp + rename) so the dock never reads a torn file. Only on the
+// first publish and whenever the reported identity changes.
+async function writeFull(target: string, id: Identity): Promise<void> {
+  await ensureDir(path.dirname(target));
+  const payload: WindowState = {
+    schemaVersion: SCHEMA_VERSION,
+    ...id,
+    lastSeen: new Date().toISOString(),
+  };
+  const tmp = `${target}.${process.pid}.tmp`;
+  await fs.promises.writeFile(tmp, JSON.stringify(payload, null, 2), "utf8");
+  await fs.promises.rename(tmp, target);
+}
+
+// Heartbeat. Identity unchanged -> just bump mtime (one syscall, no allocation, no
+// temp-file churn). Identity changed (or first run / file vanished) -> full rewrite.
 async function publish(): Promise<void> {
-  const state = computeState();
-  if (!state) {
+  const id = computeIdentity();
+  if (!id) {
     await removeOwnFile();
     return;
   }
   const target = stateFilePath();
-  const tmp = `${target}.${process.pid}.tmp`;
+  const sig = JSON.stringify(id);
   try {
-    await fs.promises.mkdir(sharedDir(), { recursive: true });
-    await fs.promises.writeFile(tmp, JSON.stringify(state, null, 2), "utf8");
-    await fs.promises.rename(tmp, target);
-    if (lastWritten !== target) {
-      log.appendLine(`reporting ${state.folderUri} -> ${target}`);
-      lastWritten = target;
+    if (sig !== lastSignature) {
+      await writeFull(target, id);
+      lastSignature = sig;
+      if (lastWritten !== target) {
+        log.appendLine(`reporting ${id.folderUri} -> ${target}`);
+        lastWritten = target;
+      }
+    } else {
+      const now = new Date();
+      try {
+        await fs.promises.utimes(target, now, now);
+      } catch {
+        await writeFull(target, id); // file disappeared -> recreate it
+        lastWritten = target;
+      }
     }
   } catch (err) {
     log.appendLine(`publish failed: ${String(err)}`);
@@ -150,6 +193,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.workspace.onDidChangeConfiguration(async (e) => {
       if (e.affectsConfiguration(`${CONFIG_SECTION}.sharedDirectory`)) {
         await removeOwnFile();
+        dirEnsured = false; // the new directory may not exist yet
       }
       if (
         e.affectsConfiguration(`${CONFIG_SECTION}.heartbeatIntervalMs`) ||
@@ -163,12 +207,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscodeProjectsDock.showStatus", () => {
       log.show(true);
-      const state = computeState();
+      const id = computeIdentity();
       log.appendLine("--- status ---");
       log.appendLine(`heartbeat: ${heartbeatMs()} ms`);
       log.appendLine(`sharedDir: ${sharedDir()}`);
       log.appendLine(`file:      ${stateFilePath()}`);
-      log.appendLine(state ? JSON.stringify(state, null, 2) : "(no folder open)");
+      log.appendLine(
+        id
+          ? JSON.stringify({ schemaVersion: SCHEMA_VERSION, ...id }, null, 2)
+          : "(no folder open)"
+      );
     })
   );
 }
