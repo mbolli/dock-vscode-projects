@@ -34,5 +34,5 @@ VSIX (`npm run package`) — installing a `"ui"` extension from a WSL window rou
 the local host. Run "VS Code Projects Dock: Show companion status" to dump the current
 state and file path.
 
-> `publisher` is a placeholder (`zweiundeins`); set the real Marketplace publisher
-> before publishing. v1 reports `workspaceFolders[0]` only (one project per window).
+> `publisher` (`michael-bolli`) is the Marketplace publisher ID; the human-readable
+> identity is in `author`. v1 reports `workspaceFolders[0]` only (one project per window).

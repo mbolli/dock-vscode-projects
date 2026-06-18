@@ -4,7 +4,8 @@
   "description": "Disposable probe: logs window identity + remote authority to settle the extensionKind placement (Q1) and windowId source (Q2) questions. Delete after Phase 0.",
   "version": "0.0.0",
   "private": true,
-  "publisher": "local",
+  "publisher": "michael-bolli",
+  "author": "Michael Bolli <michael@bolli.us>",
   "engines": {
     "vscode": "^1.85.0"
   },
