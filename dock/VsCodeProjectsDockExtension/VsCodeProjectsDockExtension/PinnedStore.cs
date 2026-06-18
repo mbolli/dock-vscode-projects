@@ -2,10 +2,11 @@
 // launched) even when no window is open. NOT part of the companion contract: the
 // companion never reads this file. Stored next to the windows/ state dir.
 //
-// pinned.json: { "schemaVersion": 1, "pinned": [ { label, launchTarget, matchKey } ] }
+// pinned.json: { "schemaVersion": 1, "pinned": [ { label, launchTarget, matchKey, remoteKind } ] }
 //   label        — button text
 //   launchTarget — passed verbatim to Code.exe --folder-uri (the folderUri)
 //   matchKey     — folderUri used to dedup against live windows (defaults to launchTarget)
+//   remoteKind   — local/wsl/ssh/container, captured at pin time (shown as the subtitle)
 
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Text.Json;
 
 namespace VsCodeProjectsDockExtension;
 
-internal readonly record struct PinnedItem(string Label, string LaunchTarget, string MatchKey);
+internal readonly record struct PinnedItem(string Label, string LaunchTarget, string MatchKey, string RemoteKind);
 
 internal static class PinnedStore
 {
@@ -51,10 +52,12 @@ internal static class PinnedStore
                 }
                 var label = GetString(e, "label");
                 var matchKey = GetString(e, "matchKey");
+                var remoteKind = GetString(e, "remoteKind");
                 list.Add(new PinnedItem(
                     string.IsNullOrEmpty(label) ? launchTarget : label,
                     launchTarget,
-                    string.IsNullOrEmpty(matchKey) ? launchTarget : matchKey));
+                    string.IsNullOrEmpty(matchKey) ? launchTarget : matchKey,
+                    string.IsNullOrEmpty(remoteKind) ? RemoteKindFromUri(launchTarget) : remoteKind));
             }
         }
         catch (JsonException) { }
@@ -102,6 +105,7 @@ internal static class PinnedStore
                     w.WriteString("label", item.Label);
                     w.WriteString("launchTarget", item.LaunchTarget);
                     w.WriteString("matchKey", item.MatchKey);
+                    w.WriteString("remoteKind", item.RemoteKind);
                     w.WriteEndObject();
                 }
                 w.WriteEndArray();
@@ -115,6 +119,19 @@ internal static class PinnedStore
         }
         catch (IOException) { }
         catch (UnauthorizedAccessException) { }
+    }
+
+    // Fallback for a pin that predates the stored remoteKind: infer it from the URI.
+    private static string RemoteKindFromUri(string folderUri)
+    {
+        if (folderUri.StartsWith("vscode-remote://", StringComparison.OrdinalIgnoreCase))
+        {
+            var lower = folderUri.ToLowerInvariant();
+            if (lower.Contains("wsl%2b") || lower.Contains("wsl+")) return "wsl";
+            if (lower.Contains("ssh-remote")) return "ssh";
+            if (lower.Contains("container")) return "container";
+        }
+        return "local";
     }
 
     private static string? GetString(JsonElement obj, string name) =>

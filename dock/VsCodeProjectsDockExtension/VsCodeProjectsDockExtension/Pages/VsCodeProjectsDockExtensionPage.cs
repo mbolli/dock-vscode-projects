@@ -78,8 +78,9 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
             items.Add(new ListItem(command)
             {
                 Title = p.Label,
-                Subtitle = open ? "pinned · open" : "pinned",
-                // Filled star when the project is open, outline when it's closed.
+                // remoteKind like live windows; the star (filled=open, outline=closed)
+                // already conveys pinned + open/closed, so no text for that.
+                Subtitle = p.RemoteKind,
                 Icon = new IconInfo(char.ConvertFromUtf32(open ? 0xE735 : 0xE734)),
                 MoreCommands =
                 [
@@ -101,7 +102,7 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
                 [
                     new CommandContextItem(new PinCommand(
                         IdPrefix + ".pin." + w.WindowId,
-                        new PinnedItem(w.DisplayName, w.FolderUri, w.FolderUri))),
+                        new PinnedItem(w.DisplayName, w.FolderUri, w.FolderUri, w.RemoteKind))),
                 ],
             });
         }
