@@ -42,7 +42,10 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
     // project is open), then live-only windows on the right. Dedup is keyed on folderUri.
     public override IListItem[] GetItems()
     {
-        var live = WindowStore.ReadLive(_settings.SharedDirectory, _settings.WindowTimeoutSeconds);
+        var sharedDir = _settings.ExistingSharedDirectory();
+        var live = sharedDir is null
+            ? new List<WindowState>()
+            : WindowStore.ReadLive(sharedDir, _settings.WindowTimeoutSeconds);
         var favourites = FavouritesStore.Read();
         var favouriteKeys = new HashSet<string>(favourites.Select(f => f.MatchKey));
 
@@ -92,12 +95,21 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         if (items.Count == 0)
         {
-            // Keep one item so the band still pins when nothing is open or favourited.
-            items.Add(new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
-            {
-                Title = "No VS Code windows",
-                Icon = new IconInfo(char.ConvertFromUtf32(0xE946)),
-            });
+            // Keep one item so the band still pins. Distinguish "the companion's folder
+            // isn't there" (likely not installed / misconfigured) from "folder is there
+            // but nothing is open" — the former is a warning, not an empty state.
+            items.Add(sharedDir is null
+                ? new ListItem(new NoOpCommand() { Id = IdPrefix + ".missing" })
+                {
+                    Title = "VS Code companion not found",
+                    Subtitle = "No shared folder at " + _settings.SharedDirectory,
+                    Icon = new IconInfo(char.ConvertFromUtf32(0xE7BA)), // Warning
+                }
+                : new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
+                {
+                    Title = "No VS Code windows",
+                    Icon = new IconInfo(char.ConvertFromUtf32(0xE946)),
+                });
         }
 
         return items.ToArray();

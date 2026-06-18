@@ -55,7 +55,7 @@ internal sealed class SettingsManager
 
     public Settings Settings => _settings;
 
-    // The companion's default location, used when the setting is left empty.
+    // The intended state directory (configured if set, else default) — for display.
     public string SharedDirectory
     {
         get
@@ -63,6 +63,15 @@ internal sealed class SettingsManager
             var value = _settings.GetSetting<string>("sharedDirectory")?.Trim();
             return string.IsNullOrEmpty(value) ? WindowStore.DefaultSharedDir() : value;
         }
+    }
+
+    // The directory to read: the effective path (configured if set, else default) when
+    // it exists, else null — a missing folder is surfaced as a warning in the dock
+    // rather than silently falling back, so a wrong configured path is visible.
+    public string? ExistingSharedDirectory()
+    {
+        var dir = SharedDirectory;
+        return Directory.Exists(dir) ? dir : null;
     }
 
     public int WindowTimeoutSeconds =>
