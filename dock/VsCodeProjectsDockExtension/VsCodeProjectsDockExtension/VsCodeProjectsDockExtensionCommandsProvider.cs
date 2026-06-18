@@ -10,7 +10,7 @@ namespace VsCodeProjectsDockExtension;
 public partial class VsCodeProjectsDockExtensionCommandsProvider : CommandProvider
 {
     // Reverse-DNS provider id — required for the dock to address this extension.
-    private const string ProviderId = "us.bolli.vscodeprojectsdock";
+    private const string ProviderId = "ch.mbolli.vscodeprojectsdock";
 
     // One live page drives both surfaces: the top-level palette entry and the dock
     // band. Its timer raises ItemsChanged, so both refresh as windows come and go.

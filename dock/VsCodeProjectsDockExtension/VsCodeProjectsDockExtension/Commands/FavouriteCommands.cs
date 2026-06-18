@@ -14,7 +14,7 @@ internal sealed partial class PinFavouriteCommand : InvokableCommand
     {
         Id = id;
         Name = "Pin to dock";
-        Icon = new IconInfo(""); // Pin
+        Icon = new IconInfo(char.ConvertFromUtf32(0xE718)); // Pin
         _fav = fav;
     }
 
@@ -33,7 +33,7 @@ internal sealed partial class UnpinFavouriteCommand : InvokableCommand
     {
         Id = id;
         Name = "Unpin from dock";
-        Icon = new IconInfo(""); // Unpin
+        Icon = new IconInfo(char.ConvertFromUtf32(0xE77A)); // Unpin
         _matchKey = matchKey;
     }
 

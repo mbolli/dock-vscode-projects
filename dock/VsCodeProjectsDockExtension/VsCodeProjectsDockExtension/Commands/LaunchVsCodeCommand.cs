@@ -13,17 +13,37 @@ namespace VsCodeProjectsDockExtension;
 internal sealed partial class LaunchVsCodeCommand : InvokableCommand
 {
     private readonly string _folderUri;
+    private readonly string? _focusDisplayName;
+    private readonly string? _focusRemoteKind;
 
+    // Closed target (e.g. a favourite whose window isn't open): launch only.
     public LaunchVsCodeCommand(string id, string folderUri)
+        : this(id, folderUri, null, null)
+    {
+    }
+
+    // Open target: try a fast native window focus first; fall back to launch if the
+    // window can't be uniquely identified.
+    public LaunchVsCodeCommand(string id, string folderUri, string? focusDisplayName, string? focusRemoteKind)
     {
         Id = id;
         Name = "Open";
-        Icon = new IconInfo(""); // Segoe "OpenInNewWindow" glyph
+        Icon = new IconInfo(char.ConvertFromUtf32(0xE8A7)); // open in new window
         _folderUri = folderUri;
+        _focusDisplayName = focusDisplayName;
+        _focusRemoteKind = focusRemoteKind;
     }
 
     public override ICommandResult Invoke()
     {
+        // Fast path: raise the already-open window directly. Only when the project is
+        // known open (focus hint present) and the window is unambiguously matched.
+        if (_focusDisplayName is not null &&
+            WindowFocus.TryFocus(_focusDisplayName, _focusRemoteKind ?? "local"))
+        {
+            return CommandResult.Dismiss();
+        }
+
         try
         {
             var psi = new ProcessStartInfo

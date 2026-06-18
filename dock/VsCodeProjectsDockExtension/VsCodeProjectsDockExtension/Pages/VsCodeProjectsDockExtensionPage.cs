@@ -16,13 +16,16 @@ namespace VsCodeProjectsDockExtension;
 // a manual reload.
 internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDisposable
 {
-    private const string IdPrefix = "us.bolli.vscodeprojectsdock";
+    private const string IdPrefix = "ch.mbolli.vscodeprojectsdock";
     private const int PollMs = 2000;
 
     private readonly System.Timers.Timer _poll;
 
     public VsCodeProjectsDockExtensionPage()
     {
+        // Stable id so CmdPal keys the dock-band pin to it and dedups across re-installs
+        // instead of generating a fresh id each time (which accumulated duplicate pins).
+        Id = IdPrefix + ".windows";
         Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
         Title = "VS Code Projects";
         Name = "VS Code Projects";
@@ -44,12 +47,18 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         foreach (var f in favourites)
         {
-            var open = live.Any(w => w.FolderUri == f.MatchKey);
-            items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget))
+            // If the favourite's project is open, carry the live window's name/kind so
+            // the command can fast-focus it; otherwise the command just launches.
+            var match = live.FirstOrDefault(w => w.FolderUri == f.MatchKey);
+            var open = match.FolderUri is not null;
+            var command = open
+                ? new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, match.DisplayName, match.RemoteKind)
+                : new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget);
+            items.Add(new ListItem(command)
             {
                 Title = f.Label,
                 Subtitle = open ? "favourite · open" : "favourite",
-                Icon = new IconInfo(""), // FavoriteStarFill
+                Icon = new IconInfo(char.ConvertFromUtf32(0xE735)), // star (favourite)
                 MoreCommands =
                 [
                     new CommandContextItem(
@@ -60,11 +69,11 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         foreach (var w in live.Where(w => !favouriteKeys.Contains(w.FolderUri)))
         {
-            items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri))
+            items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri, w.DisplayName, w.RemoteKind))
             {
                 Title = w.DisplayName,
                 Subtitle = w.RemoteKind,
-                Icon = new IconInfo(""), // "{ }" placeholder glyph
+                Icon = new IconInfo(char.ConvertFromUtf32(0xE8B7)), // folder (live window)
                 MoreCommands =
                 [
                     new CommandContextItem(new PinFavouriteCommand(
@@ -80,7 +89,7 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
             items.Add(new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
             {
                 Title = "No VS Code windows",
-                Icon = new IconInfo(""),
+                Icon = new IconInfo(char.ConvertFromUtf32(0xE946)),
             });
         }
 
