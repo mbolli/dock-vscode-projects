@@ -19,7 +19,25 @@
         "command": "vscodeProjectsDock.showStatus",
         "title": "VS Code Projects Dock: Show companion status"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "VS Code Projects Dock",
+      "properties": {
+        "vscodeProjectsDock.heartbeatIntervalMs": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 500,
+          "scope": "application",
+          "markdownDescription": "How often (in milliseconds) this window rewrites its state file so the dock sees the window as alive. Lower = snappier dock updates but more disk writes. The dock's staleness/reap threshold should be a small multiple of this (the default reap of 6s tolerates one missed 2s beat). Minimum 500."
+        },
+        "vscodeProjectsDock.sharedDirectory": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "Absolute path to the shared state directory both halves use. Leave empty to use the default `%LOCALAPPDATA%\\VsCodeProjectsDock\\windows`. **If you change this, the dock must be configured to read the same path.**"
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",

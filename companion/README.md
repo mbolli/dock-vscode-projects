@@ -21,6 +21,20 @@ by the dock's mtime staleness reap, not by this extension.
 Shared dir: `%LOCALAPPDATA%\VsCodeProjectsDock\windows\`
 (WSL view `/mnt/c/Users/micha/AppData/Local/VsCodeProjectsDock/windows/`).
 
+## Settings
+
+| Setting | Default | Scope | Meaning |
+| --- | --- | --- | --- |
+| `vscodeProjectsDock.heartbeatIntervalMs` | `2000` | application | How often the state file is rewritten (ms, min 500). Lower = snappier dock, more writes. |
+| `vscodeProjectsDock.sharedDirectory` | `""` (→ `%LOCALAPPDATA%\VsCodeProjectsDock\windows`) | machine | Absolute path to the shared state dir. **The dock must read the same path.** |
+
+Both apply live — no reload. Changing the interval reschedules the heartbeat;
+changing the directory deletes the old file and republishes to the new one.
+
+The **reap/staleness threshold lives on the dock, not here** — it's the consumer's
+call how long without a heartbeat counts as dead (keep it a small multiple of the
+interval).
+
 ## Dev
 
 ```fish

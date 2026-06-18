@@ -4,7 +4,9 @@ import * as vscode from "vscode";
 
 // Contract: see ../contract/state-file.schema.json (single source of truth).
 const SCHEMA_VERSION = 1;
-const HEARTBEAT_MS = 2000;
+const CONFIG_SECTION = "vscodeProjectsDock";
+const DEFAULT_HEARTBEAT_MS = 2000;
+const MIN_HEARTBEAT_MS = 500;
 
 type RemoteKind = "local" | "wsl" | "container" | "ssh";
 
@@ -21,9 +23,24 @@ let log: vscode.OutputChannel;
 let heartbeat: ReturnType<typeof setInterval> | undefined;
 let lastWritten: string | undefined; // path of the file we currently own, if any
 
-// %LOCALAPPDATA%\VsCodeProjectsDock\windows\ — present because Phase 0 fixed this to
-// the ui (Windows) host. The /mnt/c fallback only matters if placement ever changes.
+function config(): vscode.WorkspaceConfiguration {
+  return vscode.workspace.getConfiguration(CONFIG_SECTION);
+}
+
+// Clamped so a typo in settings can't turn the heartbeat into a busy loop.
+function heartbeatMs(): number {
+  const v = config().get<number>("heartbeatIntervalMs", DEFAULT_HEARTBEAT_MS);
+  return Math.max(MIN_HEARTBEAT_MS, v);
+}
+
+// Override via setting, else %LOCALAPPDATA%\VsCodeProjectsDock\windows\ — present
+// because Phase 0 fixed this to the ui (Windows) host. The /mnt/c fallback only
+// matters if placement ever changes. The dock must read the same directory.
 function sharedDir(): string {
+  const override = config().get<string>("sharedDirectory", "").trim();
+  if (override) {
+    return override;
+  }
   const localAppData = process.env.LOCALAPPDATA;
   if (localAppData) {
     return path.join(localAppData, "VsCodeProjectsDock", "windows");
@@ -96,15 +113,22 @@ async function publish(): Promise<void> {
   }
 }
 
+// (Re)schedule the heartbeat at the configured cadence, writing once immediately.
+function restartHeartbeat(): void {
+  if (heartbeat) {
+    clearInterval(heartbeat);
+  }
+  void publish();
+  heartbeat = setInterval(() => {
+    void publish();
+  }, heartbeatMs());
+}
+
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   log = vscode.window.createOutputChannel("VS Code Projects Dock (companion)");
   context.subscriptions.push(log);
 
-  await publish();
-
-  heartbeat = setInterval(() => {
-    void publish();
-  }, HEARTBEAT_MS);
+  restartHeartbeat();
   context.subscriptions.push({
     dispose: () => {
       if (heartbeat) {
@@ -120,11 +144,28 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     })
   );
 
+  // Settings changes take effect live: a new directory orphans the old file (delete
+  // it first), and either change reschedules + rewrites at the new cadence/location.
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration(`${CONFIG_SECTION}.sharedDirectory`)) {
+        await removeOwnFile();
+      }
+      if (
+        e.affectsConfiguration(`${CONFIG_SECTION}.heartbeatIntervalMs`) ||
+        e.affectsConfiguration(`${CONFIG_SECTION}.sharedDirectory`)
+      ) {
+        restartHeartbeat();
+      }
+    })
+  );
+
   context.subscriptions.push(
     vscode.commands.registerCommand("vscodeProjectsDock.showStatus", () => {
       log.show(true);
       const state = computeState();
       log.appendLine("--- status ---");
+      log.appendLine(`heartbeat: ${heartbeatMs()} ms`);
       log.appendLine(`sharedDir: ${sharedDir()}`);
       log.appendLine(`file:      ${stateFilePath()}`);
       log.appendLine(state ? JSON.stringify(state, null, 2) : "(no folder open)");
