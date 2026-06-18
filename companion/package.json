@@ -9,6 +9,7 @@
     "vscode": "^1.85.0"
   },
   "categories": ["Other"],
+  "icon": "images/icon.png",
   "// extensionKind": "Phase 0 confirmed a ui-host extension sees the wsl+ authority and writes natively to %LOCALAPPDATA%.",
   "extensionKind": ["ui"],
   "activationEvents": ["onStartupFinished"],

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- rounded dark backplate -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#23232B"/>
+
+  <!-- the dock band: a strip of project buttons (two favourites + one open) -->
+  <rect x="72"  y="143" width="96" height="196" rx="28" fill="#55555F"/>
+  <rect x="208" y="143" width="96" height="196" rx="28" fill="#0E8CE6"/>
+  <rect x="344" y="143" width="96" height="196" rx="28" fill="#55555F"/>
+
+  <!-- liveness indicator under the open (active) project -->
+  <circle cx="256" cy="357" r="14" fill="#0E8CE6"/>
+</svg>
