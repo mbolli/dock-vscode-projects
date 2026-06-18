@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Add a screenshot of the dock band to the Marketplace listing.
+
 ## 0.1.1
 
 - Clearer Marketplace description: leads with what it is (a companion for the PowerToys

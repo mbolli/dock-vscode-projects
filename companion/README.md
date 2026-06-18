@@ -11,6 +11,8 @@ file that the **dock** reads to render the band and focus or launch projects.
 > [project README](https://github.com/mbolli/dock-vscode-projects) for the dock and how
 > the two fit together.
 
+![The dock band in the PowerToys Command Palette showing pinned and open VS Code projects](https://raw.githubusercontent.com/mbolli/dock-vscode-projects/HEAD/brand/screen.png)
+
 ## What it does
 
 - Reports each window's folder, remote kind (local / WSL / container / SSH), and

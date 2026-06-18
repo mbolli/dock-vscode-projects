@@ -19,6 +19,10 @@ PowerToys Command Palette Dock.
 
 ---
 
+<div align="center">
+  <img src="brand/screen.png" width="720" alt="The dock band in the PowerToys Command Palette showing pinned and open VS Code projects (local and WSL)">
+</div>
+
 ## Install
 
 > Requires Windows 11 with **PowerToys** (Command Palette ≥ 0.100) and **Developer
