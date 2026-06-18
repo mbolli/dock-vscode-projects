@@ -1,0 +1,32 @@
+# Lightweight, opinionated baseline for `dotnet format`. See dock/ for the C# rules
+# that matter; the companion (TS) is formatted by its own toolchain.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.cs]
+indent_size = 4
+
+# Usings: System.* first, then alphabetical, no blank lines between groups.
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+# Prefer modern, terse C# the codebase already uses.
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_using_directive_placement = outside_namespace:warning
+csharp_prefer_braces = true:warning
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+dotnet_style_predefined_type_for_locals_parameters_members = true:warning
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{csproj,props,targets,appxmanifest}]
+indent_size = 2
