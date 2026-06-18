@@ -25,6 +25,13 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
+  <!-- Copy assets into the build output so the loose-layout dev deploy (which mirrors
+       win-x64\) includes them; otherwise only the full MSIX package carries them and
+       the registered layout is missing its tile/StoreLogo images. -->
+  <ItemGroup>
+    <Content Update="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
