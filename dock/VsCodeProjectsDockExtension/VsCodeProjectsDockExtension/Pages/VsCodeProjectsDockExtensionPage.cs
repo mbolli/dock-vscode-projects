@@ -47,9 +47,8 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
 
         return windows
             .Select(w => (IListItem)new ListItem(
-                new NoOpCommand() { Id = IdPrefix + ".window." + w.WindowId })
+                new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri))
             {
-                // Title/Subtitle only for now — focus/launch actions are Group 6.
                 Title = w.DisplayName,
                 Subtitle = w.RemoteKind,
                 Icon = new IconInfo(""), // Segoe "Code" glyph
