@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "VsCodeProjectsDockExtension (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "VsCodeProjectsDockExtension (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
