@@ -20,12 +20,12 @@
       "const": 1
     },
     "windowId": {
-      "description": "Stable, unique-per-window identifier. Used as the filename key. Source confirmed in Phase 0 (Group 1).",
+      "description": "Stable, unique-per-window identifier. Used as the filename key. Source: vscode.env.sessionId (per-window uniqueness pending two-window verification).",
       "type": "string",
       "minLength": 1
     },
     "folderUri": {
-      "description": "The opened workspace folder URI. Carries the remote authority for remote windows (e.g. vscode-remote://wsl+Ubuntu/home/michael/project). The dock's match key.",
+      "description": "workspaceFolder.uri.toString() — percent-encoded, authority lowercased (e.g. vscode-remote://wsl%2Bubuntu-24.04/var/www/project). The dock's exact match key. Do NOT use uri.authority (case differs) or uri.fsPath (Windows-mangles remote paths).",
       "type": "string",
       "format": "uri",
       "minLength": 1

@@ -9,8 +9,8 @@ prose.
 ```json
 {
   "schemaVersion": 1,
-  "windowId": "<stable per-window id>",
-  "folderUri": "vscode-remote://wsl+Ubuntu/home/michael/project",
+  "windowId": "f7bae137-7a2f-4dd3-88fc-a09365358854...",
+  "folderUri": "vscode-remote://wsl%2Bubuntu-24.04/var/www/project",
   "remoteKind": "wsl",
   "displayName": "project",
   "lastSeen": "2026-06-18T10:00:00Z"
@@ -29,14 +29,22 @@ prose.
   with mtime and exists so the payload is self-describing.
 - The dock's **match key** is `folderUri` (exact comparison). The companion reporting
   the exact remote URI is what makes dedup exact rather than a title-fragment guess.
+  **Canonical form is `workspaceFolder.uri.toString()`** — percent-encoded, with the
+  authority lowercased (`vscode-remote://wsl%2Bubuntu-24.04/...`). Both sides must use
+  this exact string; do NOT mix in `uri.authority` (which preserves case as
+  `Ubuntu-24.04`) or `uri.fsPath` (Windows-mangles remote POSIX paths to `\var\www`).
 
-## Field derivation (companion side)
+## Field derivation (companion side, confirmed by Phase 0 probe)
 
-- `folderUri` — from `vscode.workspace.workspaceFolders`.
-- `remoteKind` — from the URI scheme/authority: `wsl+` → `wsl`, `dev-container+` →
-  `container`, `ssh-remote+` → `ssh`, otherwise `local`.
-- `displayName` — leaf of the folder path.
-- `windowId` — Phase 0 (Group 1) confirms the source.
+- `folderUri` — `vscode.workspace.workspaceFolders[0].uri.toString()`. Verified to
+  carry the `wsl+...` authority even when the extension runs on the UI/Windows host.
+- `remoteKind` — from `vscode.env.remoteName` (populated on the UI host): `undefined`
+  → `local`, `"wsl"` → `wsl`, `"ssh-remote"` → `ssh`, `"dev-container"` /
+  `"attached-container"` → `container`.
+- `displayName` — leaf of `uri.path` (NOT `fsPath`, which is Windows-mangled for
+  remote).
+- `windowId` — `vscode.env.sessionId` (candidate; per-window uniqueness pending the
+  two-window check before commit).
 
 ## Shared directory
 
