@@ -34,8 +34,8 @@ PowerToys Command Palette Dock.
    from the Marketplace. Search "VS Code Projects Dock" in the Extensions view, or run
    `code --install-extension zweiundeins.vscode-projects-dock-companion`. It's a `ui`
    extension, so installing from a WSL window routes it to the local host automatically.
-2. **Dock:** build and register per [`dock/README.md`](dock/README.md), then run
-   `Reload` in Command Palette.
+2. **Dock:** a **Microsoft Store** listing is on the way; until then, build and register
+   per [`dock/README.md`](dock/README.md), then run `Reload` in Command Palette.
 
 ## What it does
 
@@ -50,6 +50,18 @@ of three states:
 
 Pinned projects sit on the left, live-only on the right. Works for **local and WSL
 remote** windows alike — the exact remote folder URI is what makes matching reliable.
+
+## Configuration
+
+Companion settings (Settings → "VS Code Projects Dock"), both applied live:
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `vscodeProjectsDock.heartbeatIntervalMs` | `2000` | How often the file's mtime is touched (min 500). |
+| `vscodeProjectsDock.sharedDirectory` | `%LOCALAPPDATA%\VsCodeProjectsDock\windows` | Shared state dir; the dock must read the same path. |
+
+The dock has its own settings page (shared directory, window timeout before a window
+counts as closed, and which VS Code edition/path to launch).
 
 ## How it works
 
@@ -90,18 +102,6 @@ The repo is canonical on WSL ext4. The companion builds in WSL; the dock builds 
 Windows over `\\wsl.localhost\...` with the standalone `dotnet` CLI (only the MSIX
 *install location* must be local NTFS, since WSL's 9P filesystem can't host a
 registered package). See [`dock/README.md`](dock/README.md).
-
-## Configuration
-
-Companion settings (Settings → "VS Code Projects Dock"), both applied live:
-
-| Setting | Default | Meaning |
-| --- | --- | --- |
-| `vscodeProjectsDock.heartbeatIntervalMs` | `2000` | How often the file's mtime is touched (min 500). |
-| `vscodeProjectsDock.sharedDirectory` | `%LOCALAPPDATA%\VsCodeProjectsDock\windows` | Shared state dir; the dock must read the same path. |
-
-The **reap/staleness threshold** is a dock setting (the consumer decides what "dead"
-means); keep it a small multiple of the heartbeat.
 
 ## Development
 

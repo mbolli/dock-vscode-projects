@@ -1,8 +1,13 @@
 # dock/ — PowerToys Command Palette dock extension
 
-C# / WinUI 3 / Windows App SDK **packaged (MSIX)** app. Windows-only (no dotnet in
-WSL; CmdPal is Windows-only). Reads the shared state directory, renders the band, owns
-pinned projects, and performs focus/launch actions per `../contract/`.
+The dock shows your VS Code projects as a side-by-side band in the PowerToys Command
+Palette — pinned projects and live windows — and focuses or launches them on click. End
+users install it from the **Microsoft Store** (see the [project README](../README.md)).
+
+**The rest of this document is for building and developing the dock.** It's a C# / WinUI 3
+/ Windows App SDK **packaged (MSIX)** app, Windows-only (Command Palette is Windows-only).
+It reads the shared state directory, renders the band, owns pinned projects, and performs
+focus/launch per [`../contract/`](../contract/).
 
 ## Scaffolding
 
