@@ -7,7 +7,7 @@
 Your open and favourite VS Code projects as a side-by-side strip in the
 PowerToys Command Palette Dock.
 
-[![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/zweiundeins.vscode-projects-dock-companion?label=Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=zweiundeins.vscode-projects-dock-companion)
+[![VS Marketplace](https://img.shields.io/badge/VS%20Marketplace-install-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=zweiundeins.vscode-projects-dock-companion)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows%2011%20%2B%20WSL-0078D4)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.85%2B-007ACC?logo=visualstudiocode&logoColor=white)
