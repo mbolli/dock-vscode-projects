@@ -1,9 +1,9 @@
-// Dock-owned favourites — projects pinned to the dock so they show (and can be
+// Dock-owned pinned projects — projects pinned to the dock so they show (and can be
 // launched) even when no window is open. NOT part of the companion contract: the
 // companion never reads this file. Stored next to the windows/ state dir.
 //
-// favourites.json: { "schemaVersion": 1, "favourites": [ { label, launchTarget, matchKey } ] }
-//   label       — button text
+// pinned.json: { "schemaVersion": 1, "pinned": [ { label, launchTarget, matchKey } ] }
+//   label        — button text
 //   launchTarget — passed verbatim to Code.exe --folder-uri (the folderUri)
 //   matchKey     — folderUri used to dedup against live windows (defaults to launchTarget)
 
@@ -14,19 +14,19 @@ using System.Text.Json;
 
 namespace VsCodeProjectsDockExtension;
 
-internal readonly record struct Favourite(string Label, string LaunchTarget, string MatchKey);
+internal readonly record struct PinnedItem(string Label, string LaunchTarget, string MatchKey);
 
-internal static class FavouritesStore
+internal static class PinnedStore
 {
     private const int SchemaVersion = 1;
 
     private static string FilePath() => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "VsCodeProjectsDock", "favourites.json");
+        "VsCodeProjectsDock", "pinned.json");
 
-    internal static List<Favourite> Read()
+    internal static List<PinnedItem> Read()
     {
-        var list = new List<Favourite>();
+        var list = new List<PinnedItem>();
         var path = FilePath();
         if (!File.Exists(path))
         {
@@ -36,7 +36,7 @@ internal static class FavouritesStore
         try
         {
             using var doc = JsonDocument.Parse(File.ReadAllBytes(path));
-            if (!doc.RootElement.TryGetProperty("favourites", out var arr) ||
+            if (!doc.RootElement.TryGetProperty("pinned", out var arr) ||
                 arr.ValueKind != JsonValueKind.Array)
             {
                 return list;
@@ -51,7 +51,7 @@ internal static class FavouritesStore
                 }
                 var label = GetString(e, "label");
                 var matchKey = GetString(e, "matchKey");
-                list.Add(new Favourite(
+                list.Add(new PinnedItem(
                     string.IsNullOrEmpty(label) ? launchTarget : label,
                     launchTarget,
                     string.IsNullOrEmpty(matchKey) ? launchTarget : matchKey));
@@ -63,27 +63,27 @@ internal static class FavouritesStore
         return list;
     }
 
-    internal static void Add(Favourite fav)
+    internal static void Add(PinnedItem item)
     {
         var list = Read();
-        if (list.Exists(f => f.MatchKey == fav.MatchKey))
+        if (list.Exists(p => p.MatchKey == item.MatchKey))
         {
             return; // already pinned — pinning is idempotent
         }
-        list.Add(fav);
+        list.Add(item);
         Write(list);
     }
 
     internal static void Remove(string matchKey)
     {
         var list = Read();
-        if (list.RemoveAll(f => f.MatchKey == matchKey) > 0)
+        if (list.RemoveAll(p => p.MatchKey == matchKey) > 0)
         {
             Write(list);
         }
     }
 
-    private static void Write(List<Favourite> favs)
+    private static void Write(List<PinnedItem> items)
     {
         var path = FilePath();
         try
@@ -95,13 +95,13 @@ internal static class FavouritesStore
             {
                 w.WriteStartObject();
                 w.WriteNumber("schemaVersion", SchemaVersion);
-                w.WriteStartArray("favourites");
-                foreach (var f in favs)
+                w.WriteStartArray("pinned");
+                foreach (var item in items)
                 {
                     w.WriteStartObject();
-                    w.WriteString("label", f.Label);
-                    w.WriteString("launchTarget", f.LaunchTarget);
-                    w.WriteString("matchKey", f.MatchKey);
+                    w.WriteString("label", item.Label);
+                    w.WriteString("launchTarget", item.LaunchTarget);
+                    w.WriteString("matchKey", item.MatchKey);
                     w.WriteEndObject();
                 }
                 w.WriteEndArray();

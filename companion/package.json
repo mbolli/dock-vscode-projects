@@ -1,7 +1,7 @@
 {
   "name": "vscode-projects-dock-companion",
   "displayName": "VS Code Projects Dock (Companion)",
-  "description": "Companion for VS Code Projects Dock (PowerToys Command Palette). Reports each window's identity and liveness so the dock shows and switches your open and favourite projects, local and WSL.",
+  "description": "Companion for VS Code Projects Dock (PowerToys Command Palette). Reports each window's identity and liveness so the dock shows and switches your open and pinned projects, local and WSL.",
   "version": "0.1.1",
   "publisher": "zweiundeins",
   "author": "Michael Bolli <michael@zweiundeins.gmbh>",

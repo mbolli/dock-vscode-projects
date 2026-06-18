@@ -2,7 +2,7 @@
 
 C# / WinUI 3 / Windows App SDK **packaged (MSIX)** app. Windows-only (no dotnet in
 WSL; CmdPal is Windows-only). Reads the shared state directory, renders the band, owns
-favourites, and performs focus/launch actions per `../contract/`.
+pinned projects, and performs focus/launch actions per `../contract/`.
 
 ## Scaffolding (corrected: there is NO `dotnet new` template)
 

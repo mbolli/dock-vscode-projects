@@ -10,7 +10,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace VsCodeProjectsDockExtension;
 
-// The live window list + favourites. Used for both the top-level palette command and
+// The live window list + pinned projects. Used for both the top-level palette command and
 // the dock band (each GetItems() entry renders as a band button). A timer re-reads and
 // raises ItemsChanged so the band reflects windows opening/closing and pin/unpin without
 // a manual reload.
@@ -38,7 +38,7 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
         _poll.Start();
     }
 
-    // Three-state merge: favourites pinned left (merged once with a live window if that
+    // Three-state merge: pinned projects on the left (merged once with a live window if that
     // project is open), then live-only windows on the right. Dedup is keyed on folderUri.
     public override IListItem[] GetItems()
     {
@@ -46,14 +46,14 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
         var live = sharedDir is null
             ? new List<WindowState>()
             : WindowStore.ReadLive(sharedDir, _settings.WindowTimeoutSeconds);
-        var favourites = FavouritesStore.Read();
-        var favouriteKeys = new HashSet<string>(favourites.Select(f => f.MatchKey));
+        var pinned = PinnedStore.Read();
+        var pinnedKeys = new HashSet<string>(pinned.Select(p => p.MatchKey));
 
         var executable = _settings.VsCodeExecutable;
         var processName = _settings.VsCodeProcessName;
         var items = new List<IListItem>();
 
-        // Surface a missing shared folder up front — even when favourites are pinned —
+        // Surface a missing shared folder up front — even when projects are pinned —
         // since live-window detection is broken until it's fixed.
         if (sharedDir is null)
         {
@@ -65,50 +65,50 @@ internal sealed partial class VsCodeProjectsDockExtensionPage : ListPage, IDispo
             });
         }
 
-        foreach (var f in favourites)
+        foreach (var p in pinned)
         {
-            // If the favourite's project is open, carry the live window's name/kind so
-            // the command can fast-focus it; otherwise the command just launches.
-            var match = live.FirstOrDefault(w => w.FolderUri == f.MatchKey);
+            // If the pinned project is open, carry the live window's name/kind so the
+            // command can fast-focus it; otherwise the command just launches.
+            var match = live.FirstOrDefault(w => w.FolderUri == p.MatchKey);
             var open = match.FolderUri is not null;
             var command = open
-                ? new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, executable,
+                ? new LaunchVsCodeCommand(IdPrefix + ".pinned." + p.MatchKey, p.LaunchTarget, executable,
                     new FocusHint(match.DisplayName, match.RemoteKind, processName))
-                : new LaunchVsCodeCommand(IdPrefix + ".fav." + f.MatchKey, f.LaunchTarget, executable);
+                : new LaunchVsCodeCommand(IdPrefix + ".pinned." + p.MatchKey, p.LaunchTarget, executable);
             items.Add(new ListItem(command)
             {
-                Title = f.Label,
-                Subtitle = open ? "favourite · open" : "favourite",
+                Title = p.Label,
+                Subtitle = open ? "pinned · open" : "pinned",
                 // Filled star when the project is open, outline when it's closed.
                 Icon = new IconInfo(char.ConvertFromUtf32(open ? 0xE735 : 0xE734)),
                 MoreCommands =
                 [
                     new CommandContextItem(
-                        new UnpinFavouriteCommand(IdPrefix + ".unpin." + f.MatchKey, f.MatchKey)),
+                        new UnpinCommand(IdPrefix + ".unpin." + p.MatchKey, p.MatchKey)),
                 ],
             });
         }
 
-        foreach (var w in live.Where(w => !favouriteKeys.Contains(w.FolderUri)))
+        foreach (var w in live.Where(w => !pinnedKeys.Contains(w.FolderUri)))
         {
             items.Add(new ListItem(new LaunchVsCodeCommand(IdPrefix + ".window." + w.WindowId, w.FolderUri, executable,
                 new FocusHint(w.DisplayName, w.RemoteKind, processName)))
             {
                 Title = w.DisplayName,
                 Subtitle = w.RemoteKind,
-                Icon = new IconInfo(char.ConvertFromUtf32(0xE8B7)), // folder (live window)
+                Icon = new IconInfo(char.ConvertFromUtf32(0xF12B)), // FabricFolder (solid)
                 MoreCommands =
                 [
-                    new CommandContextItem(new PinFavouriteCommand(
+                    new CommandContextItem(new PinCommand(
                         IdPrefix + ".pin." + w.WindowId,
-                        new Favourite(w.DisplayName, w.FolderUri, w.FolderUri))),
+                        new PinnedItem(w.DisplayName, w.FolderUri, w.FolderUri))),
                 ],
             });
         }
 
         if (items.Count == 0)
         {
-            // Folder exists but nothing is open or favourited. (A missing folder already
+            // Folder exists but nothing is open or pinned. (A missing folder already
             // added a warning above, so we're not here in that case.)
             items.Add(new ListItem(new NoOpCommand() { Id = IdPrefix + ".empty" })
             {

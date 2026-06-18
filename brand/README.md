@@ -4,7 +4,7 @@ The single source of truth for the project's mark, shared by both halves so neit
 extension "owns" it (same spirit as `contract/`).
 
 - `icon.svg` — the canonical icon. Dark rounded backplate; the dock-band motif of two
-  grey favourites flanking one blue "open" project with a liveness dot.
+  grey pinned projects flanking one blue "open" project with a liveness dot.
 - `render.sh` — regenerates every PNG (the companion's Marketplace icon and all of the
   dock's MSIX tile/logo assets) from `icon.svg`.
 

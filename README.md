@@ -4,7 +4,7 @@
 
 # VS Code Projects Dock
 
-Your open and favourite VS Code projects as a side-by-side strip in the
+Your open and pinned VS Code projects as a side-by-side strip in the
 PowerToys Command Palette Dock.
 
 [![VS Marketplace](https://img.shields.io/badge/VS%20Marketplace-install-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=zweiundeins.vscode-projects-dock-companion)
@@ -41,10 +41,10 @@ of three states:
 | State | Looks | Click |
 | --- | --- | --- |
 | **Open** (live window) | active | focuses the existing window |
-| **Favourite + open** | active, merged once | focuses the existing window |
-| **Favourite + closed** | inactive | launches a new VS Code window |
+| **Pinned + open** | active, merged once | focuses the existing window |
+| **Pinned + closed** | inactive | launches a new VS Code window |
 
-Favourites are pinned left, live-only projects to the right. Works for **local and WSL
+Pinned projects sit on the left, live-only on the right. Works for **local and WSL
 remote** windows alike — the exact remote folder URI is what makes matching reliable.
 
 ## How it works
@@ -63,7 +63,7 @@ the dock consumes it and owns all behaviour.
   runtime on Windows sees every window (local and WSL) and writes natively to
   `%LOCALAPPDATA%`. It reports what *is*, never what to do.
 - **`dock/`** — a PowerToys Command Palette extension (C# / WinUI 3 / .NET 10, packaged
-  MSIX) that reads the directory, merges favourites, and performs focus/launch.
+  MSIX) that reads the directory, merges pinned projects, and performs focus/launch.
 - **Liveness** is heartbeat-based: each window bumps its file's mtime on a timer; the
   dock reaps files whose mtime is older than its staleness threshold. Crashes
   (`SIGKILL`, force-quit, power loss) run no exit code, so a heartbeat is the only
