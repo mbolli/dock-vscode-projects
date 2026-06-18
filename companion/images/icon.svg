@@ -1,12 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B2B33"/>
+      <stop offset="1" stop-color="#1A1A1F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#29A3FF"/>
+      <stop offset="1" stop-color="#0078D4"/>
+    </linearGradient>
+  </defs>
+
   <!-- rounded dark backplate -->
-  <rect x="0" y="0" width="512" height="512" rx="112" fill="#23232B"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
 
   <!-- the dock band: a strip of project buttons (two favourites + one open) -->
-  <rect x="72"  y="143" width="96" height="196" rx="28" fill="#55555F"/>
-  <rect x="208" y="143" width="96" height="196" rx="28" fill="#0E8CE6"/>
-  <rect x="344" y="143" width="96" height="196" rx="28" fill="#55555F"/>
+  <rect x="72"  y="143" width="96" height="196" rx="28" fill="#54545F"/>
+  <rect x="208" y="143" width="96" height="196" rx="28" fill="url(#accent)"/>
+  <rect x="344" y="143" width="96" height="196" rx="28" fill="#54545F"/>
 
   <!-- liveness indicator under the open (active) project -->
-  <circle cx="256" cy="357" r="14" fill="#0E8CE6"/>
+  <circle cx="256" cy="357" r="14" fill="url(#accent)"/>
 </svg>
