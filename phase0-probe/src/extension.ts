@@ -2,7 +2,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 
-const EXTENSION_ID = "michael-bolli.vscode-dock-phase0-probe";
+const EXTENSION_ID = "zweiundeins.vscode-dock-phase0-probe";
 
 // WSL view of %LOCALAPPDATA%\VsCodeProjectsDock\windows\ for the test-file write.
 // If this extension runs on the Windows UI host, prefer the env var; on the Linux

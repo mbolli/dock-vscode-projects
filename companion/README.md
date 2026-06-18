@@ -49,4 +49,4 @@ npm run compile   # F5 to debug, npm run package for a VSIX
 
 ## License
 
-[MIT](LICENSE) © Michael Bolli
+[MIT](LICENSE) © zwei und eins gmbh

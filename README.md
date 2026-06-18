@@ -118,4 +118,4 @@ Marketplace) and `dock-vX.Y.Z` (PowerToys / winget).
 
 ## License
 
-[MIT](LICENSE) © Michael Bolli
+[MIT](LICENSE) © zwei und eins gmbh

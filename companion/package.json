@@ -3,8 +3,8 @@
   "displayName": "VS Code Projects Dock (Companion)",
   "description": "Silent reporter: publishes this window's identity and liveness to the shared state directory the PowerToys dock reads. Reports what is, never what to do.",
   "version": "0.1.0",
-  "publisher": "michael-bolli",
-  "author": "Michael Bolli <michael@bolli.us>",
+  "publisher": "zweiundeins",
+  "author": "Michael Bolli <michael@zweiundeins.gmbh>",
   "license": "MIT",
   "repository": {
     "type": "git",
