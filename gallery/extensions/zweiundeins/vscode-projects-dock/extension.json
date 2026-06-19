@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../.github/schemas/extension.schema.json",
+  "id": "zweiundeins.vscode-projects-dock",
+  "title": "VS Code Projects Dock",
+  "shortDescription": "Your pinned and open VS Code projects as a side-by-side strip in the PowerToys Command Palette dock.",
+  "description": "VS Code Projects Dock shows your VS Code projects as a strip in the PowerToys Command Palette dock - pinned projects and open windows, side by side.\n\nClick a project to focus its window if it is already open, or launch it if it is closed. Pinned projects stay on the left so favourites are one click away; open windows appear on the right and clear when you close them. Local and WSL-remote projects work the same way.\n\nWhat you need:\n- Microsoft PowerToys with the Command Palette feature enabled.\n- The free companion extension 'VS Code Projects Dock (Companion)' from the Visual Studio Marketplace, which reports your open windows to the dock.\n\nPrivacy: the companion writes only a small local state file under your user profile. Nothing is sent over the network.",
+  "author": {
+    "name": "zwei und eins gmbh",
+    "url": "https://github.com/mbolli/dock-vscode-projects"
+  },
+  "icon": "icon.png",
+  "homepage": "https://github.com/mbolli/dock-vscode-projects",
+  "tags": ["vscode", "powertoys", "command-palette", "projects", "wsl"],
+  "categories": ["developer-tools", "productivity", "utilities-and-tools"],
+  "installSources": [
+    { "type": "msstore", "id": "9PB5B0CB3NTL" }
+  ]
+}
