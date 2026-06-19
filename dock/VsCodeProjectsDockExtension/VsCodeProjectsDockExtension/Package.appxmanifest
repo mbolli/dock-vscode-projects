@@ -15,7 +15,7 @@
   <!-- Identity from Partner Center. The Store signs the package to match this Publisher. -->
 
   <Properties>
-    <DisplayName>VS Code Projects Dock</DisplayName>
+    <DisplayName>VS Code Projects Dock (Powertoys Command Palette)</DisplayName>
     <PublisherDisplayName>zwei und eins gmbh</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
