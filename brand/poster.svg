@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="720" height="1080" viewBox="0 0 720 1080">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#0E3A6B"/>
+      <stop offset="0.55" stop-color="#0C1A2E"/>
+      <stop offset="1" stop-color="#0A0A0D"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#1F9CF0" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#1F9CF0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B2B33"/>
+      <stop offset="1" stop-color="#1A1A1F"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F9CF0"/>
+      <stop offset="1" stop-color="#0066B8"/>
+    </linearGradient>
+    <clipPath id="shot"><rect x="40" y="446" width="640" height="259" rx="20"/></clipPath>
+  </defs>
+
+  <rect width="720" height="1080" fill="url(#page)"/>
+  <ellipse cx="360" cy="576" rx="430" ry="280" fill="url(#glow)"/>
+
+  <!-- app icon -->
+  <g transform="translate(312,92) scale(0.1875)">
+    <rect width="512" height="512" rx="112" fill="url(#tile)" stroke="#3A3A44" stroke-width="3"/>
+    <rect x="56" y="150" width="400" height="150" rx="24" fill="url(#band)"/>
+    <path transform="translate(132,225)"
+          d="M0,-46 10.6,-14.6 43.7,-14.2 17.1,5.6 27,37.2 0,18 -27,37.2 -17.1,5.6 -43.7,-14.2 -10.6,-14.6Z"
+          fill="#fff"/>
+    <g fill="#fff">
+      <rect x="216" y="200" width="120" height="16" rx="8"/>
+      <rect x="216" y="232" width="64"  height="12" rx="6" opacity="0.55"/>
+      <rect x="360" y="200" width="80"  height="16" rx="8"/>
+      <rect x="360" y="232" width="48"  height="12" rx="6" opacity="0.55"/>
+    </g>
+  </g>
+
+  <!-- title + tagline -->
+  <g text-anchor="middle" font-family="Ubuntu, 'DejaVu Sans', sans-serif">
+    <text x="360" y="288" font-size="46" font-weight="700" fill="#FFFFFF">VS Code Projects Dock</text>
+    <text x="360" y="344" font-size="25" fill="#AEC4DC">Your pinned and open projects, side by side</text>
+    <text x="360" y="380" font-size="25" fill="#AEC4DC">in the PowerToys Command Palette</text>
+  </g>
+
+  <!-- the real dock band screenshot -->
+  <image xlink:href="screen.png" x="40" y="446" width="640" height="259"
+         preserveAspectRatio="xMidYMid meet" clip-path="url(#shot)"/>
+  <rect x="40" y="446" width="640" height="259" rx="20" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.5"/>
+
+  <!-- feature lines -->
+  <g text-anchor="middle" font-family="Ubuntu, 'DejaVu Sans', sans-serif" fill="#C9D6E6" font-size="24">
+    <text x="360" y="800">Pinned favourites and live windows, side by side</text>
+    <text x="360" y="848">Click to focus an open window — or launch a closed one</text>
+    <text x="360" y="896">Works with local and WSL-remote projects</text>
+  </g>
+
+  <!-- footer -->
+  <text x="360" y="1035" text-anchor="middle" font-family="Ubuntu, 'DejaVu Sans', sans-serif"
+        font-size="22" fill="#6A7686">zwei und eins gmbh</text>
+</svg>
