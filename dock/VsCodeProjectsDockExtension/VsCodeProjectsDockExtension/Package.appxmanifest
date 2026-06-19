@@ -26,7 +26,9 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="x-generate"/>
+    <!-- UI strings are English; pin the language so the build machine's locale
+         (x-generate) doesn't mislabel the package (e.g. as de-CH). -->
+    <Resource Language="en-US" />
   </Resources>
 
   <Applications>
