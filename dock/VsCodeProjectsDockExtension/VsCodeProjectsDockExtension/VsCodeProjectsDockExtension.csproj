@@ -27,6 +27,13 @@
     <PackageProjectUrl>https://github.com/mbolli/dock-vscode-projects</PackageProjectUrl>
   </PropertyGroup>
 
+  <!-- Microsoft Store identity (from Partner Center). Must match Package.appxmanifest. -->
+  <PropertyGroup>
+    <AppxPackageIdentityName>zweiundeinsgmbh.VSCodeProjectsDockPowertoysCommand</AppxPackageIdentityName>
+    <AppxPackagePublisher>CN=58F7B1B9-DC32-4D30-B7EB-91E0DCDD0B00</AppxPackagePublisher>
+    <AppxPackageVersion>0.1.0.0</AppxPackageVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />

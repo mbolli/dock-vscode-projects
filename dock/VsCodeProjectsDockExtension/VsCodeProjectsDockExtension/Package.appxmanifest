@@ -9,10 +9,10 @@
   IgnorableNamespaces="uap uap3 rescap">
 
   <Identity
-    Name="VsCodeProjectsDockExtension"
-    Publisher="CN=zwei und eins gmbh"
+    Name="zweiundeinsgmbh.VSCodeProjectsDockPowertoysCommand"
+    Publisher="CN=58F7B1B9-DC32-4D30-B7EB-91E0DCDD0B00"
     Version="0.1.0.0" />
-  <!-- Publisher must match the signing certificate's subject when you sign for release. -->
+  <!-- Identity from Partner Center. The Store signs the package to match this Publisher. -->
 
   <Properties>
     <DisplayName>VS Code Projects Dock</DisplayName>

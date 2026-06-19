@@ -42,5 +42,5 @@ $bundle = Join-Path $appPackages "VsCodeProjectsDockExtension_$Version.msixbundl
 & $makeappx.FullName bundle /d $stage /p $bundle /o
 if ($LASTEXITCODE -ne 0) { throw "makeappx bundle failed ($LASTEXITCODE)" }
 
-Write-Host "`nBundle (unsigned — upload to Partner Center, the Store signs it):" -ForegroundColor Green
+Write-Host "`nBundle (unsigned - upload to Partner Center, the Store signs it):" -ForegroundColor Green
 Write-Host "  $bundle"
