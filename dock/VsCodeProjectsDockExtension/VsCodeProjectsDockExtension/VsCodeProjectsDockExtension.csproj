@@ -17,7 +17,7 @@
 
   <!-- Release / assembly metadata. Keep Version in sync with Package.appxmanifest. -->
   <PropertyGroup>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>VS Code Projects Dock</Product>
     <Description>Open and favourite VS Code projects as a side-by-side strip in the PowerToys Command Palette dock.</Description>
     <Authors>Michael Bolli</Authors>
@@ -31,7 +31,7 @@
   <PropertyGroup>
     <AppxPackageIdentityName>zweiundeinsgmbh.VSCodeProjectsDockPowertoysCommand</AppxPackageIdentityName>
     <AppxPackagePublisher>CN=58F7B1B9-DC32-4D30-B7EB-91E0DCDD0B00</AppxPackagePublisher>
-    <AppxPackageVersion>0.1.0.0</AppxPackageVersion>
+    <AppxPackageVersion>0.1.1.0</AppxPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -110,9 +110,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'!='Debug'">
-    <!-- In Release builds, trimming is enabled by default. 
-         feel free to disable this if needed -->
-    <PublishTrimmed>true</PublishTrimmed>
+    <!-- Trimming is OFF: this is an out-of-process COM server (Shmuelie.WinRTServer);
+         a trimmed Release crashed at launch on ARM64 during Store certification. Keep
+         the Release runtime behaviour close to the (working) untrimmed Debug build. -->
+    <PublishTrimmed>false</PublishTrimmed>
 
     <!-- In release, also ignore the aforementioned ILLink warning -->
     <ILLinkTreatWarningsAsErrors>false</ILLinkTreatWarningsAsErrors>
