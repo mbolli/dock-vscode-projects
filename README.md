@@ -127,6 +127,16 @@ identity-bearing package to be discoverable; an unpackaged EXE isn't.) Build the
 submission bundle with `dock/.../build-store.ps1` — see
 [`dock/README.md`](dock/README.md#release--microsoft-store).
 
+Pushing a `companion-vX.Y.Z` tag runs the
+[Companion release](.github/workflows/companion-release.yml) workflow, which validates the
+tag against `companion/package.json`, packages the VSIX, attaches it to a GitHub release,
+and (when a `VSCE_PAT` secret is configured) publishes to the VS Code Marketplace.
+
+## Privacy
+
+Both halves run entirely on your machine: no telemetry, no network connections, only local
+state files. See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 [MIT](LICENSE) © zwei und eins gmbh

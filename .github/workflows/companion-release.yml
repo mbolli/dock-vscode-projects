@@ -1,0 +1,63 @@
+name: Companion release
+
+# Builds and releases the VS Code companion extension when a tag like
+# `companion-v0.1.2` is pushed. The dock (C#/MSIX) ships via the Microsoft Store
+# and is intentionally not built here.
+#
+# Always: validates the tag against companion/package.json, packages a .vsix, and
+# attaches it to a GitHub release.
+# Optional: if a `VSCE_PAT` secret is set, also publishes to the VS Code Marketplace.
+
+on:
+  push:
+    tags:
+      - 'companion-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: companion
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: companion/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tag matches package version
+        run: |
+          pkg_version="$(node -p "require('./package.json').version")"
+          tag_version="${GITHUB_REF_NAME#companion-v}"
+          echo "package.json=$pkg_version  tag=$tag_version"
+          if [ "$pkg_version" != "$tag_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match companion package.json version $pkg_version"
+            exit 1
+          fi
+
+      - name: Package VSIX
+        run: npx vsce package --out "vscode-projects-dock-companion-${GITHUB_REF_NAME#companion-v}.vsix"
+
+      - name: Publish to VS Code Marketplace
+        if: ${{ env.VSCE_PAT != '' }}
+        run: npx vsce publish --packagePath "vscode-projects-dock-companion-${GITHUB_REF_NAME#companion-v}.vsix"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "vscode-projects-dock-companion-${GITHUB_REF_NAME#companion-v}.vsix" \
+            --title "Companion ${GITHUB_REF_NAME#companion-v}" \
+            --notes-file CHANGELOG.md
