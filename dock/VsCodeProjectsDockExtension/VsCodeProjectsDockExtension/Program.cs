@@ -16,7 +16,16 @@ public class Program
     [MTAThread]
     public static void Main(string[] args)
     {
-        if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
+        // This process is a Command Palette extension COM server, not a normal app.
+        // Command Palette launches it with -RegisterProcessAsComServer. Any other launch
+        // (the Store certification "launch" test, a stray tile click) must do nothing and
+        // exit cleanly so it is never observed as a crash or hang.
+        if (args.Length == 0 || args[0] != "-RegisterProcessAsComServer")
+        {
+            return;
+        }
+
+        try
         {
             global::Shmuelie.WinRTServer.ComServer server = new();
 
@@ -35,9 +44,10 @@ public class Program
             server.Stop();
             server.UnsafeDispose();
         }
-        else
+        catch
         {
-            Console.WriteLine("Not being launched as a Extension... exiting.");
+            // Never let an unhandled exception during COM activation surface as a Windows
+            // crash dialog / WER bucket; the host re-activates the server on demand.
         }
     }
 }

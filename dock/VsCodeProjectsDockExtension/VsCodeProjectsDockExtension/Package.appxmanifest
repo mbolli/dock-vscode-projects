@@ -11,7 +11,7 @@
   <Identity
     Name="zweiundeinsgmbh.VSCodeProjectsDockPowertoysCommand"
     Publisher="CN=58F7B1B9-DC32-4D30-B7EB-91E0DCDD0B00"
-    Version="0.1.1.0" />
+    Version="0.1.2.0" />
   <!-- Identity from Partner Center. The Store signs the package to match this Publisher. -->
 
   <Properties>
@@ -35,7 +35,12 @@
     <Application Id="App"
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
+      <!-- AppListEntry="none": this is a background CmdPal extension (COM server), not a
+           user-launchable app. Hiding it from the app list keeps the Store certification
+           "launch" test from starting the headless server and reporting it as a launch
+           crash/hang. Command Palette still discovers it via the windows.appExtension below. -->
       <uap:VisualElements
+        AppListEntry="none"
         DisplayName="VS Code Projects Dock"
         Description="Open and favourite VS Code projects as a side-by-side strip in the Command Palette dock."
         BackgroundColor="transparent"
