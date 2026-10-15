@@ -140,3 +140,7 @@ state files. See [PRIVACY.md](PRIVACY.md).
 ## License
 
 [MIT](LICENSE) © zwei und eins gmbh
+
+## Maintainer
+
+Maintained by [Michael Bolli](https://github.com/mbolli) at [zwei und eins gmbh](https://zweiundeins.gmbh), Aarberg, Switzerland.
